@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>중3 심화 8테마 18종목 모의 주식 거래소 v3.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-ticker {
+            display: flex;
+            width: max-content;
+            animation: ticker 42s linear infinite;
+        }
+        .animate-ticker:hover {
+            animation-play-state: paused;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 상단 실시간 증권거래소 전광판 티커 -->
+    <div class="bg-slate-950 text-white py-2 overflow-hidden border-b border-slate-800 select-none">
+        <div id="ticker-container" class="animate-ticker gap-8 text-xs sm:text-sm font-bold tracking-wide px-4">
+            <!-- JS에서 동적 렌더링 -->
+        </div>
+    </div>
+
+    <!-- 1. 로그인 / 역할 선택 화면 -->
+    <div id="login-screen" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-900 to-blue-800 p-6 text-white text-center">
+                <span class="inline-block bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-extrabold px-3 py-1 rounded-full mb-2">
+                    중3 수학·경제 심화 프로젝트 v3.1
+                </span>
+                <h1 class="text-2xl font-black tracking-tight">실전 모의 주식 거래소</h1>
+                <p class="text-indigo-200 text-xs mt-1">초기 자본 1,000만 원 · 8대 테마 18개 기업 · 총 10라운드</p>
+            </div>
+
+            <!-- 역할 전환 탭 -->
+            <div class="grid grid-cols-2 bg-slate-100 p-1.5 m-5 rounded-2xl">
+                <button type="button" id="tab-student" onclick="switchLoginRole('student')" class="py-2.5 text-sm font-extrabold rounded-xl bg-white text-indigo-600 shadow-sm transition-all">
+                    🎓 학생 투자자 입장
+                </button>
+                <button type="button" id="tab-teacher" onclick="switchLoginRole('teacher')" class="py-2.5 text-sm font-bold rounded-xl text-slate-500 hover:text-slate-700 transition-all">
+                    📊 교사 (거래소 전광판)
+                </button>
+            </div>
+
+            <!-- 학생 입장 폼 -->
+            <div id="student-login-form" class="px-6 pb-7 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">소속 반 선택</label>
+                        <select id="input-student-class" class="w-full px-3.5 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-800 bg-white">
+                            <option value="1">3학년 1반</option>
+                            <option value="2">3학년 2반</option>
+                            <option value="3">3학년 3반</option>
+                            <option value="4">3학년 4반</option>
+                            <option value="5" selected>3학년 5반</option>
+                            <option value="6">3학년 6반</option>
+                            <option value="7">3학년 7반</option>
+                            <option value="8">3학년 8반</option>
+                            <option value="9">3학년 9반</option>
+                            <option value="10">3학년 10반</option>
+                            <option value="11">3학년 11반</option>
+                            <option value="12">3학년 12반</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">학번 (숫자 4~5자리)</label>
+                        <input type="text" id="input-student-id" placeholder="예: 30515" class="w-full px-3.5 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-800">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">이름</label>
+                    <input type="text" id="input-student-name" placeholder="실명 입력 (예: 김민준)" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-800">
+                </div>
+                <div class="bg-indigo-50 p-3.5 rounded-xl text-xs text-indigo-900 leading-relaxed space-y-1">
+                    <p>💡 초기 자본금 <strong>10,000,000원(1천만 원)</strong>이 지급됩니다.</p>
+                    <p>⚠️ 같은 테마 안에서도 <strong>대장주·성장주·적자기업</strong>에 따라 주가 등락률이 다르니 뉴스 속 힌트를 꼼꼼히 읽으세요!</p>
+                </div>
+                <button type="button" id="btn-student-enter" onclick="enterAsStudent()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-extrabold rounded-xl shadow-md transition-all">
+                    투자 계좌 개설 및 입장하기
+                </button>
+            </div>
+
+            <!-- 교사 입장 폼 -->
+            <div id="teacher-login-form" class="px-6 pb-7 space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">수업 진행할 반 선택</label>
+                    <select id="input-teacher-class" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-bold text-slate-800 bg-white">
+                        <option value="1">3학년 1반</option>
+                        <option value="2">3학년 2반</option>
+                        <option value="3">3학년 3반</option>
+                        <option value="4">3학년 4반</option>
+                        <option value="5" selected>3학년 5반</option>
+                        <option value="6">3학년 6반</option>
+                        <option value="7">3학년 7반</option>
+                        <option value="8">3학년 8반</option>
+                        <option value="9">3학년 9반</option>
+                        <option value="10">3학년 10반</option>
+                        <option value="11">3학년 11반</option>
+                        <option value="12">3학년 12반</option>
+                        <option value="ALL">🏆 전체 반 종합 순위</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">교사 전용 비밀번호</label>
+                    <input type="password" id="input-teacher-pw" placeholder="비밀번호 입력" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-bold text-slate-800">
+                </div>
+                <div class="bg-slate-900 text-slate-200 p-3.5 rounded-2xl text-xs space-y-1.5 leading-relaxed">
+                    <p class="font-bold text-amber-400">📺 교실 전광판 실시간 동기화 (동시 100명 지원)</p>
+                    <p>• 총 <strong>10라운드</strong>로 진행되며, 타이머 3분 이내라도 언제든 즉시 주가 반영 및 다음 라운드 진행이 가능합니다.</p>
+                </div>
+                <button type="button" id="btn-teacher-enter" onclick="enterAsTeacher()" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-extrabold rounded-xl shadow-md transition-all">
+                    증권거래소 전광판 열기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 메인 거래소 대시보드 (학생 & 교사 공용 레이아웃) -->
+    <div id="main-dashboard" class="hidden flex-1 flex flex-col max-w-7xl w-full mx-auto p-3 sm:p-5 gap-4">
+        
+        <!-- 상단 컨트롤 바 -->
+        <header class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <!-- 교사 반 전환 드롭다운 (1~12반) -->
+                <select id="teacher-class-switcher" onchange="switchTeacherClass()" class="hidden bg-amber-400 text-slate-950 text-xs sm:text-sm font-black px-3 py-1.5 rounded-xl border-2 border-amber-500 cursor-pointer">
+                    <option value="1">3학년 1반</option>
+                    <option value="2">3학년 2반</option>
+                    <option value="3">3학년 3반</option>
+                    <option value="4">3학년 4반</option>
+                    <option value="5">3학년 5반</option>
+                    <option value="6">3학년 6반</option>
+                    <option value="7">3학년 7반</option>
+                    <option value="8">3학년 8반</option>
+                    <option value="9">3학년 9반</option>
+                    <option value="10">3학년 10반</option>
+                    <option value="11">3학년 11반</option>
+                    <option value="12">3학년 12반</option>
+                    <option value="ALL">🏆 전체 반 종합 순위</option>
+                </select>
+
+                <span id="round-badge" class="bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl">
+                    1 / 10회차 진행 중
+                </span>
+                <div>
+                    <h2 id="header-title" class="text-base sm:text-lg font-black text-slate-900">1회차 시장 개장</h2>
+                    <p id="user-role-label" class="text-xs text-slate-500 font-semibold"></p>
+                </div>
+            </div>
+
+            <!-- 3분(03:00) 카운트다운 거래 타이머 -->
+            <div id="timer-box-wrapper" class="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-2 rounded-2xl shadow-xs">
+                <span class="text-xs font-bold text-slate-400">⏱️ 남은 시간</span>
+                <span id="timer-display" class="font-mono text-base sm:text-lg font-black text-amber-400 tracking-wider">03:00</span>
+                <div id="teacher-timer-btns" class="hidden flex items-center gap-1 ml-1 border-l border-slate-700 pl-2">
+                    <button type="button" onclick="toggleTimerPause()" id="btn-timer-pause" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-200">
+                        일시정지
+                    </button>
+                    <button type="button" onclick="resetTimerThreeMin()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-amber-300">
+                        3분 리셋
+                    </button>
+                </div>
+            </div>
+
+            <!-- 교사 전용 라운드 진행 및 해설 버튼 -->
+            <div id="teacher-controls" class="hidden flex flex-wrap items-center gap-2">
+                <button type="button" onclick="exportCSV()" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition-all">
+                    📥 엑셀(CSV) 저장
+                </button>
+                <button type="button" id="btn-memo-toggle" onclick="toggleMemo()" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-800 hover:bg-amber-200 transition-all">
+                    💡 교사용 해설
+                </button>
+                <button type="button" onclick="advanceGamePhase()" id="btn-next-phase" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all">
+                    2회차 뉴스 공개하기 ▶
+                </button>
+                <button type="button" id="btn-reset-game" onclick="openResetModal()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-600 transition-all">
+                    현재 반 초기화
+                </button>
+            </div>
+
+            <!-- 로그아웃 / 역할 전환 -->
+            <button type="button" onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-slate-700 px-2 py-1">
+                나가기
+            </button>
+        </header>
+
+        <!-- 타이머 종료 알림 배너 -->
+        <div id="timer-expired-banner" class="hidden bg-rose-600 text-white text-center py-2.5 px-4 rounded-2xl font-black text-xs sm:text-sm shadow-md animate-pulse">
+            ⏰ 3분 거래 및 분석 시간이 종료되었습니다! 선생님께서 다음 단계를 진행합니다.
+        </div>
+
+        <!-- 교사용 경제 원리 해설 박스 -->
+        <div id="teacher-memo-box" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-amber-950 shadow-sm">
+            <div class="flex items-center gap-2 font-black text-sm text-amber-800 mb-1">
+                <span>🎓 심화 수업 포인트 & 종목별 차별화 해설 (교사용)</span>
+            </div>
+            <p id="teacher-memo-text" class="text-xs sm:text-sm leading-relaxed font-medium"></p>
+        </div>
+
+        <!-- 메인 콘텐츠 그리드 -->
+        <div id="main-content-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1">
+            
+            <!-- 왼쪽 컬럼 (7칸): 뉴스 속보 + 8테마 18종목 현재 시세판 -->
+            <div id="left-market-column" class="lg:col-span-7 flex flex-col gap-4">
+                
+                <!-- 뉴스 속보 카드 -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-900 text-white px-5 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                            <span id="news-banner-label" class="font-black text-sm tracking-wide">BREAKING NEWS · 심층 경제 속보</span>
+                        </div>
+                        <span id="news-step-badge" class="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full">
+                            거래 가능
+                        </span>
+                    </div>
+
+                    <div class="p-5">
+                        <h3 id="news-headline" class="text-lg sm:text-xl font-extrabold text-slate-900 mb-3 leading-snug">
+                            "8대 핵심 테마 18개 상장 기업 개장!"
+                        </h3>
+                        <div id="news-list" class="space-y-2.5"></div>
+                    </div>
+                </section>
+
+                <!-- 8테마 18개 상장 종목 현재가 및 기업 체질 분석 -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div>
+                            <h3 class="font-black text-base text-slate-900">📈 8대 테마 · 18개 기업 시세표</h3>
+                            <p class="text-[11px] text-slate-500">같은 테마라도 기업의 체질(대장주/성장주/적자기업)에 따라 등락폭이 다릅니다.</p>
+                        </div>
+                        <span class="text-xs text-slate-500 font-semibold">단위: 원</span>
+                    </div>
+
+                    <!-- 테마 필터 탭 -->
+                    <div id="market-theme-tabs" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-2.5 mb-2 border-b border-slate-100">
+                        <!-- JS 동적 렌더링 -->
+                    </div>
+
+                    <div id="stock-market-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[540px] overflow-y-auto custom-scrollbar pr-1">
+                        <!-- JS에서 종목 카드 렌더링 -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- 오른쪽 컬럼 (5칸): 학생용 개인 투자 계좌 OR 교사용 실시간 순위 전광판 -->
+            <div id="right-rank-column" class="lg:col-span-5 flex flex-col gap-4">
+                
+                <!-- [학생 전용] 내 투자 포트폴리오 및 매수/매도 패널 -->
+                <section id="student-portfolio-panel" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                            <span class="text-xs font-bold text-indigo-600" id="student-info-badge">학번 이름</span>
+                            <h3 class="font-black text-lg text-slate-900">내 투자 계좌</h3>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-500 block">현재 총 평가자산</span>
+                            <span id="my-total-asset" class="text-xl font-black text-slate-900">10,000,000원</span>
+                            <span id="my-return-rate" class="text-xs font-extrabold text-slate-500 block">(0.0%)</span>
+                        </div>
+                    </div>
+
+                    <!-- 현금 & 주식 평가액 요약 -->
+                    <div class="grid grid-cols-2 gap-2.5 my-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div>
+                            <span class="text-xs text-slate-500 block">주문 가능 현금</span>
+                            <span id="my-cash" class="text-sm sm:text-base font-extrabold text-emerald-600">10,000,000원</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-500 block">보유 주식 평가액</span>
+                            <span id="my-stock-value" class="text-sm sm:text-base font-extrabold text-indigo-600">0원</span>
+                        </div>
+                    </div>
+
+                    <!-- 거래 잠금 안내 배너 -->
+                    <div id="trade-lock-banner" class="hidden mb-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold p-3 rounded-xl text-center">
+                        🔒 현재 뉴스 분석 및 주가 발표 대기 중입니다. 선생님이 주가 결과를 공개한 뒤 다음 거래가 열립니다!
+                    </div>
+
+                    <!-- 학생용 테마 필터 탭 (보유종목 모아보기 포함) -->
+                    <div id="portfolio-theme-tabs" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-2 border-b border-slate-100">
+                        <!-- JS 동적 렌더링 -->
+                    </div>
+
+                    <!-- 종목 빠른 매수/매도 조작 그리드 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 flex-1 overflow-y-auto custom-scrollbar max-h-[540px] pr-1" id="portfolio-controls"></div>
+
+                    <div id="toast-message" class="mt-3 p-2.5 rounded-xl text-xs font-bold text-center hidden"></div>
+                </section>
+
+                <!-- [교사 전용 + 최종 결과 시 학생 공개] 실시간 전광판 & 순위표 -->
+                <section id="leaderboard-panel" class="bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-800 p-4 sm:p-5 flex-1 flex flex-col">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <div>
+                            <span class="text-xs font-bold text-amber-400">LIVE RANKING</span>
+                            <h3 id="leaderboard-title" class="font-black text-lg">실시간 투자자 순위 전광판</h3>
+                        </div>
+                        <span id="player-count-badge" class="bg-slate-800 text-slate-300 text-xs font-extrabold px-3 py-1 rounded-full">
+                            참여 0명
+                        </span>
+                    </div>
+
+                    <div id="leaderboard-list" class="mt-3 space-y-2.5 flex-1 overflow-y-auto custom-scrollbar max-h-[640px]">
+                        <div class="text-center text-slate-500 text-sm py-12">
+                            학생들이 반과 학번을 입력해 입장하면 실시간 순위가 표시됩니다.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 초기화 확인 커스텀 모달 -->
+    <div id="reset-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h4 class="text-lg font-black text-slate-900 mb-2">현재 반의 게임을 초기화할까요?</h4>
+            <p id="reset-modal-desc" class="text-xs text-slate-600 leading-relaxed mb-5">
+                선택한 반의 라운드가 1회차로 돌아가며, 해당 반 학생들의 자산과 보유 주식이 초기 자본금(10,000,000원)으로 리셋됩니다.
+            </p>
+            <div class="grid grid-cols-2 gap-2.5">
+                <button type="button" onclick="closeResetModal()" class="py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200">
+                    취소
+                </button>
+                <button type="button" onclick="confirmResetGame()" class="py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700">
+                    현재 반 초기화
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 선생님의 Firebase 프로젝트(math-stock-game) 설정값
+        const EXTERNAL_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyD2T0c1j-6pafcpef_uoge8WCFffTP8W7M",
+            authDomain: "math-stock-game.firebaseapp.com",
+            projectId: "math-stock-game",
+            storageBucket: "math-stock-game.firebasestorage.app",
+            messagingSenderId: "559845123205",
+            appId: "1:559845123205:web:43ccbc49d2f8b4e5bd75ec",
+            measurementId: "G-CJ7K8F4665"
+        };
+
+        const TEACHER_PASSWORD = "749200";
+        const INITIAL_CASH = 10000000; // 1,000만 원
+        const TOTAL_ROUNDS = 10;       // 총 10라운드
+        const ROUND_DURATION_SEC = 180;
+
+        // 8개 테마 정의
+        const THEMES = [
+            { id: 'AI·반도체', label: '🤖 AI·반도체' },
+            { id: '전기차·배터리', label: '🔋 전기차·배터리' },
+            { id: '바이오·헬스', label: '🧬 바이오·헬스' },
+            { id: '금융·은행', label: '🏦 금융·은행' },
+            { id: '항공·여행', label: '✈️ 항공·여행' },
+            { id: '필수소비재', label: '🍜 필수소비재' },
+            { id: '에너지·정유', label: '⚡ 에너지·정유' },
+            { id: '콘텐츠·게임', label: '🎮 콘텐츠·게임' }
+        ];
+
+        // 8개 테마 × 총 18개 종목 (단일 고밀도 시나리오 · 폭등/폭락 함정 반영)
+        // prices 배열 인덱스 0~9 = 1라운드 ~ 10라운드 가격
+        const STOCKS = [
+            // 1. AI·반도체 (3기업)
+            { id: 'ai_chip', name: '넥스트AI칩', short: 'AI칩', theme: 'AI·반도체', tier: '대장주·흑자',
+              desc: '글로벌 1위 AI 메모리 반도체 기업. 현금이 풍부해 금리·회계 쇼크에도 탄탄하게 버팀',
+              prices: [100000, 130000, 130000, 120000, 120000, 120000, 155000, 185000, 175000, 235000] },
+            { id: 'ai_gpu', name: '루미너스GPU', short: 'GPU', theme: 'AI·반도체', tier: '고성장·고변동',
+              desc: 'AI 연산 칩 설계 전문 기업. AI 붐엔 폭발적 상승, 규제·고금리엔 크게 흔들림',
+              prices: [60000, 96000, 86000, 62000, 55000, 55000, 88000, 132000, 105000, 165000] },
+            { id: 'ai_soft', name: '딥코어소프트', short: '딥코어', theme: 'AI·반도체', tier: '적자·도박주',
+              desc: '적자 AI 소프트웨어 기업. 8R 정부 국책사업 선정으로 3배 폭등 후 9R 회계부정 적발로 대폭락!',
+              prices: [30000, 42000, 36000, 20000, 15000, 15000, 20000, 60000, 15000, 10000] },
+
+            // 2. 전기차·배터리 (3기업)
+            { id: 'ev_car', name: '썬더모터스', short: '썬더차', theme: '전기차·배터리', tier: '글로벌 완성차',
+              desc: '전기차·하이브리드 병행 생산 글로벌 완성차. 환율 상승(수출) 및 보조금 수혜',
+              prices: [80000, 80000, 80000, 75000, 94000, 94000, 118000, 118000, 138000, 175000] },
+            { id: 'ev_bat', name: '볼트배터리', short: '배터리', theme: '전기차·배터리', tier: '핵심 소재',
+              desc: '고효율 전고체·리튬 배터리 제조사. 보조금 확대 및 신기술 발표 시 급등',
+              prices: [70000, 70000, 63000, 52000, 58000, 58000, 85000, 85000, 110000, 145000] },
+            { id: 'ev_chg', name: '에코차징', short: '충전소', theme: '전기차·배터리', tier: '적자·인프라',
+              desc: '막대한 빚으로 충전소를 짓는 적자 기업. 금리 인상과 화재 규제에 치명적 약점',
+              prices: [25000, 25000, 22000, 13000, 11000, 11000, 15000, 15000, 9000, 7000] },
+
+            // 3. 바이오·헬스케어 (3기업)
+            { id: 'bio_big', name: '셀리온바이오', short: '셀리온', theme: '바이오·헬스', tier: '대형 제약사',
+              desc: '복제약 수출과 안정적 현금을 보유한 대형 바이오 기업',
+              prices: [90000, 90000, 112000, 118000, 128000, 135000, 125000, 125000, 135000, 155000] },
+            { id: 'bio_new', name: '노바진신약', short: '노바진', theme: '바이오·헬스', tier: '임상 도박주',
+              desc: '항암 신약 하나에 사운을 건 벤처. 5R 임상 3상 성공 폭등(+175%) 후 6R 부작용 반토막(-72%) 함정!',
+              prices: [40000, 40000, 44000, 32000, 88000, 24000, 24000, 24000, 28000, 26000] },
+            { id: 'bio_kit', name: '메디케어킷', short: '진단킷', theme: '바이오·헬스', tier: '방역·진단',
+              desc: '전염병 진단키트 전문 기업. 3R 팬데믹 폭등(+180%) 후 6R 엔데믹 선언으로 대폭락(-70%)!',
+              prices: [20000, 20000, 56000, 62000, 62000, 18000, 16000, 16000, 17000, 16000] },
+
+            // 4. 금융·은행 (2기업)
+            { id: 'fin_bank', name: '우리민족금융', short: '민족금융', theme: '금융·은행', tier: '시중은행',
+              desc: '기준금리가 오르면 대출 이자 수익(예대마진)이 폭증하는 대표 배당주',
+              prices: [50000, 50000, 46000, 68000, 74000, 70000, 70000, 64000, 64000, 68000] },
+            { id: 'fin_pay', name: '핀테크페이', short: '핀테크', theme: '금융·은행', tier: '성장·간편결제',
+              desc: '비대면 온라인 결제 플랫폼. 집콕 소비와 금리 인하에 강하나 금리 인상엔 약함',
+              prices: [45000, 50000, 66000, 48000, 45000, 54000, 54000, 65000, 65000, 72000] },
+
+            // 5. 항공·여행 (2기업)
+            { id: 'air_big', name: '대한하늘항공', short: '하늘항공', theme: '항공·여행', tier: '대형·화물겸업',
+              desc: '화물 운송 비중이 높아 팬데믹·유가 충격을 일부 방어하고 엔데믹 때 크게 반등함',
+              prices: [40000, 40000, 26000, 24000, 20000, 36000, 30000, 33000, 36000, 40000] },
+            { id: 'air_tour', name: '블루오션투어', short: '블루투어', theme: '항공·여행', tier: '해외 패키지',
+              desc: '100% 해외여행 전문. 3R 팬데믹 봉쇄로 대폭락(-67%) 후 6R 엔데믹 보복여행으로 폭등(+180%)!',
+              prices: [30000, 30000, 10000, 9000, 8000, 22400, 19000, 22000, 25000, 29000] },
+
+            // 6. 필수소비재 (2기업)
+            { id: 'food_ramen', name: '맛나종합식품', short: '맛나식품', theme: '필수소비재', tier: '라면·K푸드',
+              desc: '불황에도 잘 팔리는 라면·간편식 1위. 해외 K-푸드 수출 폭발로 꾸준히 우상향',
+              prices: [55000, 55000, 66000, 72000, 78000, 75000, 70000, 74000, 82000, 102000] },
+            { id: 'food_mart', name: '프레시팜유통', short: '프레시팜', theme: '필수소비재', tier: '내수 식자재',
+              desc: '국내 마트·식자재 유통. 곡물가·유가 급등 시 운송비 부담으로 이익 감소',
+              prices: [35000, 35000, 39000, 39000, 36000, 36000, 29000, 31000, 33000, 36000] },
+
+            // 7. 에너지·정유 (2기업)
+            { id: 'eng_solar', name: '솔라윈드발전', short: '솔라윈드', theme: '에너지·정유', tier: '신재생에너지',
+              desc: '태양광·풍력 발전소 운영. AI 전력난 및 고유가·친환경 보조금 확대 시 폭등',
+              prices: [45000, 54000, 50000, 39000, 39000, 42000, 64000, 68000, 78000, 84000] },
+            { id: 'eng_oil', name: '오일맥스정유', short: '오일맥스', theme: '에너지·정유', tier: '전통 정유사',
+              desc: '원유 정제 및 석유화학 기업. 7R 중동 전쟁 위기·고유가 충격 시 급등(+38%)',
+              prices: [50000, 50000, 40000, 40000, 48000, 50000, 69000, 62000, 56000, 52000] },
+
+            // 8. 콘텐츠·게임 (1기업)
+            { id: 'game_px', name: '픽셀월드게임즈', short: '픽셀게임', theme: '콘텐츠·게임', tier: '글로벌 K-게임',
+              desc: '집콕 문화와 글로벌 신작 흥행, 달러 결제 매출 비중에 따라 크게 움직이는 게임사',
+              prices: [40000, 45000, 62000, 56000, 64000, 48000, 48000, 54000, 60000, 72000] }
+        ];
+
+        // 10라운드 복합 현실 시나리오 (단일 통합본 · 폭등/폭락 함정 강화)
+        const ROUNDS = [
+            {
+                round: 1,
+                title: "1회차 시장 개장: 1,000만 원 초기 포트폴리오 설계",
+                headline: "8개 테마 · 18개 상장 기업 동시 개장! 기업의 체질부터 분석하라",
+                news: [
+                    "아직 대형 경제 속보는 발표되지 않았습니다. 초기 자본금 1,000만 원으로 1회차 포트폴리오를 구성하세요.",
+                    "[핵심 규칙] 같은 테마 안에서도 '흑자 대장주', '고변동 성장주', '적자·도박주'에 따라 폭등과 대폭락의 명암이 극명하게 갈립니다.",
+                    "선생님이 타이머(최대 3분) 도중이라도 주문을 마감하고 주가를 반영할 수 있으니 빠르게 판단하세요!"
+                ],
+                memo: "1회차는 기준가입니다. 18개 종목의 '기업 체질(대장주 vs 적자·도박주)' 설명을 읽어보게 한 뒤 2회차 뉴스로 넘어가세요."
+            },
+            {
+                round: 2,
+                title: "2회차 거래 전 뉴스 속보",
+                headline: "글로벌 빅테크 '초거대 AI 데이터센터' 투자 전쟁 & 전력난 비상",
+                news: [
+                    "[AI·반도체] 미국·유럽 빅테크들이 차세대 AI 학습용 서버 증설에 수백조 원을 쏟아붓기로 발표했습니다. GPU와 AI 메모리 칩 주문이 폭증하고 있습니다.",
+                    "[에너지] AI 데이터센터의 엄청난 전기 소비를 감당하기 위해 각국 정부가 태양광·풍력 발전소 인허가를 대폭 완화했습니다.",
+                    "[콘텐츠] AI 그래픽 기술을 적용한 한국산 모바일 신작 게임이 북미 사전예약 1위를 기록했습니다."
+                ],
+                memo: "AI·반도체 3종목 동반 상승(루미너스GPU +60%, 딥코어소프트 +40%, 넥스트AI칩 +30%). 솔라윈드발전(+20%), 픽셀게임(+12.5%) 상승."
+            },
+            {
+                round: 3,
+                title: "3회차 거래 전 뉴스 속보",
+                headline: "🚨 긴급 팬데믹 확산! 하늘길 전면 봉쇄 vs 진단키트·집콕 대폭등",
+                news: [
+                    "[긴급 방역] 전염력이 매우 강한 신종 호흡기 바이러스가 전 세계로 확산되며 국경 봉쇄와 재택근무가 전격 시행되었습니다.",
+                    "[폭락 경보] 해외여행이 전면 중단되며 100% 패키지 여행사(블루오션투어)는 생존 위기에 빠졌습니다. 화물 비중이 있는 대형 항공사는 일부 버티고 있습니다.",
+                    "[폭등 수혜] 진단키트(메디케어킷) 주문이 폭주하고, 집콕 생활로 라면·간편결제·게임 이용 시간이 폭발적으로 증가했습니다."
+                ],
+                memo: "첫 번째 도파민 라운드! 메디케어킷(+180%) 폭등, 블루오션투어(-66.7%) 대폭락 vs 대한하늘항공(-35%) 차별화! 핀테크페이(+32%), 픽셀게임(+37.8%), 맛나식품(+20%) 상승."
+            },
+            {
+                round: 4,
+                title: "4회차 거래 전 뉴스 속보",
+                headline: "한국은행 기준금리 '빅스텝(+0.5%p)' 전격 인상 & AI 규제법 통과",
+                news: [
+                    "[금리 인상] 물가를 잡기 위해 한국은행이 기준금리를 0.5%p 전격 인상했습니다. 시중은행(우리민족금융)의 대출 이자 수익이 급증합니다.",
+                    "[부채 함정] 금리 급등으로 빚을 내서 충전소와 AI 소프트웨어를 개발하던 적자 기업들(딥코어소프트, 에코차징)이 심각한 자금난에 빠졌습니다.",
+                    "[규제 충격] 유럽연합(EU)이 강력한 AI 저작권 규제법을 통과시키며 고평가된 AI 종목에 매도 폭탄이 쏟아졌습니다."
+                ],
+                memo: "금리 인상 + 부채 함정! 우리민족금융(+47.8%) 급등! 빚 많은 적자주(딥코어 -44.4%, 에코차징 -40.9%, 루미너스GPU -27.9%)가 대장주(넥스트AI칩 -7.7%)보다 훨씬 크게 추락합니다."
+            },
+            {
+                round: 5,
+                title: "5회차 거래 전 뉴스 속보",
+                headline: "🧬 노바진신약 항암제 임상 3상 극적 통과! & 환율 1,490원 강달러",
+                news: [
+                    "[바이오 잭팟] 만년 벤처기업이던 노바진신약의 차세대 항암제가 글로벌 임상 3상에서 기적적인 치료 효과를 입증하며 시장을 뒤흔들었습니다!",
+                    "[환율·수출] 원/달러 환율이 1,490원까지 치솟으며 국산 완성차(썬더모터스)와 K-푸드(맛나종합식품), 글로벌 게임의 원화 환산 이익이 급증했습니다.",
+                    "[달러 부채] 반면 항공유와 해외 경비를 달러로 결제하는 항공·여행 업계는 추가 타격을 입었습니다."
+                ],
+                memo: "도박주 대폭등! 노바진신약(+175%) 2.75배 폭등! 수출주 썬더모터스(+25.3%), 맛나식품(+8.3%), 픽셀게임(+14.3%) 상승."
+            },
+            {
+                round: 6,
+                title: "6회차 거래 전 뉴스 속보",
+                headline: "⚠️ [대반전 함정] 노바진신약 판매 취소 & WHO 엔데믹(팬데믹 종식) 선언!",
+                news: [
+                    "[바이오 충격파] 직전 라운드에서 폭등했던 노바진신약의 최종 심사 과정에서 치명적 간 독성 부작용이 발견되어 판매 승인이 전격 취소되었습니다!",
+                    "[엔데믹 선언] 세계보건기구(WHO)가 감염병 비상사태 종식을 공식 선언했습니다! 억눌렸던 해외여행 예약이 폭발하는 반면, 진단키트와 집콕 게임은 수요가 급감합니다.",
+                    "[AI 재가동] 엔데믹 이후 기업들의 AI 설비 투자가 재개되며 반도체 업종이 다시 반등합니다."
+                ],
+                memo: "가장 짜릿한 반전 함정! 5R에 노바진신약에 올인한 학생은 -72.7% 대폭락, 진단키트 버티기 학생도 -71% 폭락! 반대로 블루오션투어(+180%), 대한하늘항공(+80%) 대폭등!"
+            },
+            {
+                round: 7,
+                title: "7회차 거래 전 뉴스 속보",
+                headline: "중동 군사 충돌로 국제 유가 130달러 폭등 & 전기차 보조금 2배 확대",
+                news: [
+                    "[유가 쇼크] 중동 산유국 정세 불안으로 국제 유가가 배럴당 130달러를 돌파했습니다. 전통 정유사(오일맥스정유)는 원유 재고 이익으로 급등하지만, 식자재 물류비와 항공 유류비는 급등했습니다.",
+                    "[전기차·친환경] 고유가 충격을 피하기 위해 미국과 유럽이 전기차 구매 보조금과 신재생에너지 세액공제를 2배로 확대했습니다.",
+                    "[AI 고효율] 전력 소모를 줄이는 고효율 AI 반도체 수요가 폭증하며 넥스트AI칩과 루미너스GPU가 동반 급등합니다."
+                ],
+                memo: "고유가 복합 효과! 솔라윈드발전(+52.4%), 볼트배터리(+46.6%), 오일맥스정유(+38%), 썬더모터스(+25.5%), 루미너스GPU(+60%) 급등 vs 프레시팜유통(-19.4%), 항공(-16.7%) 하락."
+            },
+            {
+                round: 8,
+                title: "8회차 거래 전 뉴스 속보",
+                headline: "🤖 정부 '국가대표 AI 소프트웨어'에 딥코어소프트 전격 선정! & 금리 인하",
+                news: [
+                    "[국책 잭팟] 만년 적자 기업이던 딥코어소프트가 정부의 초대형 '국가대표 AI 프로젝트' 단독 주관사로 전격 선정되며 시장의 이목이 집중되었습니다!",
+                    "[금리 인하] 물가가 안정되자 한국은행이 기준금리를 전격 인하했습니다. 대출 이자 수익이 줄어드는 시중은행은 약세를 보이지만 핀테크·바이오·소비재는 살아납니다.",
+                    "[유가 진정] 미국 전략비축유 방출로 국제 유가가 진정되며 정유주는 하락하고 여행·식자재 기업은 숨통이 트입니다."
+                ],
+                memo: "두 번째 도박주 떡상 함정! 딥코어소프트(+200%, 3배 폭등)로 학생들을 유혹합니다(다음 라운드에 회계부정 함정이 기다리고 있습니다). 핀테크페이(+20.4%) 상승, 우리민족금융(-8.6%) 하락."
+            },
+            {
+                round: 9,
+                title: "9회차 거래 전 뉴스 속보",
+                headline: "🚨 [긴급 공시] 딥코어소프트 분식회계(가짜 매출) 적발! & 배터리 안전규제",
+                news: [
+                    "[회계부정 충격] 직전 라운드에서 3배 폭등했던 딥코어소프트의 과거 매출이 허위(분식회계)로 드러나며 국책사업 박탈 및 상장폐지 실질심사 위기에 빠졌습니다!",
+                    "[배터리·완성차] 저가 충전소 화재 사고 이후 안전 기준이 대폭 강화되며 검증된 대형 배터리·완성차(볼트배터리, 썬더모터스)로 주문이 쏠리고 적자 충전소 기업은 추락합니다.",
+                    "[신재생·K푸드] 친환경 발전소 장기 계약 확대와 라면 수출 호조로 솔라윈드발전과 맛나종합식품이 강세를 이어갑니다."
+                ],
+                memo: "8R에 딥코어소프트로 돈 번 뒤 안 팔고 욕심부린 학생들은 -75% 대폭락! 에코차징(-40%) 하락 vs 볼트배터리(+29.4%), 썬더모터스(+16.9%), 솔라윈드(+14.7%) 상승."
+            },
+            {
+                round: 10,
+                title: "10회차(최종) 거래 전 뉴스 속보",
+                headline: "🏆 대한민국 주력 수출(AI반도체·전기차·K-푸드·K-게임) 사상 최대 실적 결산!",
+                news: [
+                    "[최종 결산] 글로벌 AI 서버 증설과 전기차 보급 확대로 넥스트AI칩, 루미너스GPU, 썬더모터스, 볼트배터리가 분기 사상 최대 실적을 발표했습니다.",
+                    "[K-컬처 대박] 맛나종합식품(라면)과 픽셀월드게임즈(K-게임) 역시 역대 최고 해외 매출을 기록하며 10라운드 대장정을 화려하게 마무리합니다.",
+                    "[부실주 정리] 만년 적자 기업(딥코어소프트, 에코차징)은 유상증자 악재로 추가 하락 마감합니다."
+                ],
+                memo: "10라운드 최종 결산! 도박주(노바진·딥코어)의 폭등과 폭락을 피해, 실적이 탄탄한 대장주(넥스트AI칩, 루미너스GPU, 썬더모터스, 볼트배터리, 맛나식품)에 분산 투자한 학생이 최종 우승합니다!"
+            }
+        ];
+
+        // --- 상태 변수 ---
+        const appId = 'math-stock-game-v3-1';
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        let role = null; // 'student' | 'teacher'
+        let myClass = '5';
+        let myStudentDocId = null;
+        let myStudentId = null;
+        let myStudentName = null;
+
+        let selectedTeacherClass = '5';
+        let selectedMarketTheme = 'ALL';
+        let selectedPortfolioTheme = 'ALL';
+
+        let classStates = {};
+        let allPlayers = {};
+
+        let unsubscribeClassState = null;
+        let showMemo = false;
+
+        function getDefaultClassState(cls) {
+            return {
+                classNum: String(cls),
+                priceRound: 1,
+                newsRound: 1,
+                isFinished: false,
+                timerEndAt: Date.now() + ROUND_DURATION_SEC * 1000,
+                timerPausedRemaining: null
+            };
+        }
+
+        function getActiveClassState(cls) {
+            const c = String(cls || '5');
+            return classStates[c] || getDefaultClassState(c);
+        }
+
+        function buildEmptyHoldings() {
+            const h = {};
+            STOCKS.forEach(s => { h[s.id] = 0; });
+            return h;
+        }
+
+        // --- Firebase 초기화 및 인증 ---
+        async function initFirebase() {
+            try {
+                const app = initializeApp(EXTERNAL_FIREBASE_CONFIG);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                await signInAnonymously(auth);
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) {
+                        subscribeAllPlayers();
+                        subscribeClassState('5');
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase init error:", error);
+            }
+            startTimerLoop();
+        }
+
+        function subscribeClassState(cls) {
+            const target = String(cls || '5');
+            if (!db || !currentUser || target === 'ALL') return;
+            if (unsubscribeClassState) unsubscribeClassState();
+
+            const stateRef = doc(db, 'artifacts', appId, 'public', 'data', 'class_states', target);
+            unsubscribeClassState = onSnapshot(stateRef, (snap) => {
+                if (snap.exists()) {
+                    classStates[target] = {
+                        ...getDefaultClassState(target),
+                        ...snap.data()
+                    };
+                } else {
+                    const initSt = getDefaultClassState(target);
+                    classStates[target] = initSt;
+                    setDoc(stateRef, initSt);
+                }
+                renderAll();
+            }, (err) => console.error("ClassState snapshot error:", err));
+        }
+
+        function subscribeAllPlayers() {
+            if (!db || !currentUser) return;
+            const playersCol = collection(db, 'artifacts', appId, 'public', 'data', 'players_v31');
+            onSnapshot(playersCol, (snapshot) => {
+                const updated = {};
+                snapshot.forEach((docSnap) => {
+                    updated[docSnap.id] = docSnap.data();
+                });
+                allPlayers = updated;
+
+                if (role === 'student' && myStudentDocId && !updated[myStudentDocId]) {
+                    logout();
+                    return;
+                }
+                renderAll();
+            }, (err) => console.error("Players snapshot error:", err));
+        }
+
+        // --- 3분(03:00) 카운트다운 타이머 루프 ---
+        function startTimerLoop() {
+            setInterval(() => {
+                updateTimerUI();
+            }, 500);
+        }
+
+        function updateTimerUI() {
+            const displayEl = document.getElementById('timer-display');
+            const expiredBanner = document.getElementById('timer-expired-banner');
+            const pauseBtn = document.getElementById('btn-timer-pause');
+            if (!displayEl) return;
+
+            const activeCls = role === 'student' ? myClass : selectedTeacherClass;
+            if (activeCls === 'ALL') {
+                if (expiredBanner) expiredBanner.classList.add('hidden');
+                return;
+            }
+
+            const gs = getActiveClassState(activeCls);
+
+            if (gs.isFinished) {
+                displayEl.innerText = "종료";
+                displayEl.className = "font-mono text-base sm:text-lg font-black text-slate-400 tracking-wider";
+                if (expiredBanner) expiredBanner.classList.add('hidden');
+                return;
+            }
+
+            let remainingSec = 0;
+            if (gs.timerPausedRemaining !== null && gs.timerPausedRemaining !== undefined) {
+                remainingSec = Math.max(0, Math.ceil(gs.timerPausedRemaining / 1000));
+                if (pauseBtn) pauseBtn.innerText = "계속하기";
+            } else {
+                const diffMs = (gs.timerEndAt || Date.now()) - Date.now();
+                remainingSec = Math.max(0, Math.ceil(diffMs / 1000));
+                if (pauseBtn) pauseBtn.innerText = "일시정지";
+            }
+
+            const mins = String(Math.floor(remainingSec / 60)).padStart(2, '0');
+            const secs = String(remainingSec % 60).padStart(2, '0');
+            displayEl.innerText = `${mins}:${secs}`;
+
+            if (remainingSec === 0) {
+                displayEl.className = "font-mono text-base sm:text-lg font-black text-rose-500 tracking-wider animate-pulse";
+                if (expiredBanner && role) expiredBanner.classList.remove('hidden');
+            } else if (remainingSec <= 30) {
+                displayEl.className = "font-mono text-base sm:text-lg font-black text-rose-400 tracking-wider";
+                if (expiredBanner) expiredBanner.classList.add('hidden');
+            } else {
+                displayEl.className = "font-mono text-base sm:text-lg font-black text-amber-400 tracking-wider";
+                if (expiredBanner) expiredBanner.classList.add('hidden');
+            }
+        }
+
+        window.toggleTimerPause = async function() {
+            if (role !== 'teacher' || selectedTeacherClass === 'ALL') return;
+            const gs = getActiveClassState(selectedTeacherClass);
+            const nextState = { ...gs };
+            if (nextState.timerPausedRemaining !== null && nextState.timerPausedRemaining !== undefined) {
+                nextState.timerEndAt = Date.now() + nextState.timerPausedRemaining;
+                nextState.timerPausedRemaining = null;
+            } else {
+                nextState.timerPausedRemaining = Math.max(0, (nextState.timerEndAt || Date.now()) - Date.now());
+            }
+            classStates[selectedTeacherClass] = nextState;
+            updateTimerUI();
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'class_states', selectedTeacherClass), nextState);
+            }
+        };
+
+        window.resetTimerThreeMin = async function() {
+            if (role !== 'teacher' || selectedTeacherClass === 'ALL') return;
+            const gs = getActiveClassState(selectedTeacherClass);
+            const nextState = {
+                ...gs,
+                timerEndAt: Date.now() + ROUND_DURATION_SEC * 1000,
+                timerPausedRemaining: null
+            };
+            classStates[selectedTeacherClass] = nextState;
+            updateTimerUI();
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'class_states', selectedTeacherClass), nextState);
+            }
+        };
+
+        // --- 로그인 탭 & 입장 핸들러 ---
+        window.switchLoginRole = function(selected) {
+            const tabStudent = document.getElementById('tab-student');
+            const tabTeacher = document.getElementById('tab-teacher');
+            const formStudent = document.getElementById('student-login-form');
+            const formTeacher = document.getElementById('teacher-login-form');
+
+            if (selected === 'student') {
+                tabStudent.className = "py-2.5 text-sm font-extrabold rounded-xl bg-white text-indigo-600 shadow-sm transition-all";
+                tabTeacher.className = "py-2.5 text-sm font-bold rounded-xl text-slate-500 hover:text-slate-700 transition-all";
+                formStudent.classList.remove('hidden');
+                formTeacher.classList.add('hidden');
+            } else {
+                tabTeacher.className = "py-2.5 text-sm font-extrabold rounded-xl bg-white text-slate-900 shadow-sm transition-all";
+                tabStudent.className = "py-2.5 text-sm font-bold rounded-xl text-slate-500 hover:text-slate-700 transition-all";
+                formTeacher.classList.remove('hidden');
+                formStudent.classList.add('hidden');
+            }
+        };
+
+        window.enterAsStudent = async function() {
+            const cls = document.getElementById('input-student-class').value;
+            const rawId = document.getElementById('input-student-id').value.trim();
+            const rawName = document.getElementById('input-student-name').value.trim();
+
+            if (!rawId || !rawName) {
+                showLoginError('btn-student-enter', "학번과 이름을 모두 입력해 주세요!");
+                return;
+            }
+
+            const cleanId = rawId.replace(/[^a-zA-Z0-9가-힣]/g, '');
+            const cleanName = rawName.replace(/[^a-zA-Z0-9가-힣]/g, '');
+            const docId = `${cls}_${cleanId}_${cleanName}`;
+
+            myClass = cls;
+            myStudentId = cleanId;
+            myStudentName = rawName;
+            myStudentDocId = docId;
+            role = 'student';
+
+            subscribeClassState(cls);
+
+            if (db && currentUser) {
+                const playerRef = doc(db, 'artifacts', appId, 'public', 'data', 'players_v31', docId);
+                const existingSnap = await getDoc(playerRef);
+                if (!existingSnap.exists()) {
+                    await setDoc(playerRef, {
+                        docId: docId,
+                        classNum: cls,
+                        studentId: cleanId,
+                        name: rawName,
+                        cash: INITIAL_CASH,
+                        holdings: buildEmptyHoldings(),
+                        updatedAt: Date.now()
+                    });
+                } else {
+                    await updateDoc(playerRef, { updatedAt: Date.now() });
+                }
+            } else if (!allPlayers[docId]) {
+                allPlayers[docId] = {
+                    docId: docId,
+                    classNum: cls,
+                    studentId: cleanId,
+                    name: rawName,
+                    cash: INITIAL_CASH,
+                    holdings: buildEmptyHoldings(),
+                    updatedAt: Date.now()
+                };
+            }
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            renderAll();
+        };
+
+        window.enterAsTeacher = function() {
+            const pw = document.getElementById('input-teacher-pw').value.trim();
+            if (pw !== TEACHER_PASSWORD) {
+                showLoginError('btn-teacher-enter', "교사 비밀번호가 올바르지 않습니다! (기본: 7788)");
+                return;
+            }
+
+            selectedTeacherClass = document.getElementById('input-teacher-class').value;
+            document.getElementById('teacher-class-switcher').value = selectedTeacherClass;
+            role = 'teacher';
+
+            if (selectedTeacherClass !== 'ALL') {
+                subscribeClassState(selectedTeacherClass);
+            }
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            renderAll();
+        };
+
+        window.switchTeacherClass = function() {
+            selectedTeacherClass = document.getElementById('teacher-class-switcher').value;
+            if (selectedTeacherClass !== 'ALL') {
+                subscribeClassState(selectedTeacherClass);
+            }
+            renderAll();
+        };
+
+        window.setMarketTheme = function(themeId) {
+            selectedMarketTheme = themeId;
+            renderAll();
+        };
+
+        window.setPortfolioTheme = function(themeId) {
+            selectedPortfolioTheme = themeId;
+            renderAll();
+        };
+
+        window.removeStudent = async function(docId) {
+            if (role !== 'teacher') return;
+            delete allPlayers[docId];
+            renderAll();
+            if (db && currentUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'players_v31', docId));
+            }
+        };
+
+        window.logout = function() {
+            role = null;
+            myStudentDocId = null;
+            if (unsubscribeClassState) {
+                unsubscribeClassState();
+                unsubscribeClassState = null;
+            }
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        };
+
+        function showLoginError(btnId, msg) {
+            const btn = document.getElementById(btnId);
+            const origText = btn.innerText;
+            const origClass = btn.className;
+            btn.innerText = "⚠️ " + msg;
+            btn.className = "w-full py-3.5 bg-rose-600 text-white font-extrabold rounded-xl shadow-md transition-all";
+            setTimeout(() => {
+                btn.innerText = origText;
+                btn.className = origClass;
+            }, 2200);
+        }
+
+        // --- 교사 10라운드 진행 컨트롤 ---
+        window.advanceGamePhase = async function() {
+            if (role !== 'teacher' || selectedTeacherClass === 'ALL') return;
+
+            const gs = getActiveClassState(selectedTeacherClass);
+            let nextState = { ...gs };
+
+            if (gs.isFinished) {
+                return;
+            } else if (gs.newsRound === gs.priceRound) {
+                if (gs.newsRound < TOTAL_ROUNDS) {
+                    nextState.newsRound = gs.newsRound + 1;
+                    nextState.timerEndAt = Date.now() + ROUND_DURATION_SEC * 1000;
+                    nextState.timerPausedRemaining = null;
+                }
+            } else if (gs.newsRound > gs.priceRound) {
+                nextState.priceRound = gs.newsRound;
+                if (nextState.priceRound === TOTAL_ROUNDS) {
+                    nextState.isFinished = true;
+                } else {
+                    nextState.timerEndAt = Date.now() + ROUND_DURATION_SEC * 1000;
+                    nextState.timerPausedRemaining = null;
+                }
+            }
+
+            classStates[selectedTeacherClass] = nextState;
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'class_states', selectedTeacherClass), nextState);
+            }
+            renderAll();
+        };
+
+        window.toggleMemo = function() {
+            showMemo = !showMemo;
+            renderAll();
+        };
+
+        window.openResetModal = function() {
+            if (selectedTeacherClass === 'ALL') return;
+            document.getElementById('reset-modal-desc').innerText =
+                `[3학년 ${selectedTeacherClass}반]의 라운드가 1회차로 돌아가며, 해당 반 학생들의 자산과 보유 주식이 초기 자본금(10,000,000원)으로 리셋됩니다. (다른 반 기록은 안전하게 유지됩니다)`;
+            document.getElementById('reset-modal').classList.remove('hidden');
+            document.getElementById('reset-modal').classList.add('flex');
+        };
+
+        window.closeResetModal = function() {
+            document.getElementById('reset-modal').classList.add('hidden');
+            document.getElementById('reset-modal').classList.remove('flex');
+        };
+
+        window.confirmResetGame = async function() {
+            closeResetModal();
+            if (selectedTeacherClass === 'ALL') return;
+
+            const resetState = getDefaultClassState(selectedTeacherClass);
+            classStates[selectedTeacherClass] = resetState;
+
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'class_states', selectedTeacherClass), resetState);
+
+                const playersCol = collection(db, 'artifacts', appId, 'public', 'data', 'players_v31');
+                const snap = await getDocs(playersCol);
+                const promises = [];
+                snap.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (String(data.classNum) === String(selectedTeacherClass)) {
+                        promises.push(updateDoc(docSnap.ref, {
+                            cash: INITIAL_CASH,
+                            holdings: buildEmptyHoldings(),
+                            updatedAt: Date.now()
+                        }));
+                    }
+                });
+                await Promise.all(promises);
+            } else {
+                Object.keys(allPlayers).forEach(id => {
+                    if (String(allPlayers[id].classNum) === String(selectedTeacherClass)) {
+                        allPlayers[id].cash = INITIAL_CASH;
+                        allPlayers[id].holdings = buildEmptyHoldings();
+                    }
+                });
+            }
+            renderAll();
+        };
+
+        // --- 엑셀(CSV) 성적 다운로드 ---
+        window.exportCSV = function() {
+            const target = selectedTeacherClass;
+            const list = Object.values(allPlayers).filter(p => target === 'ALL' || String(p.classNum) === String(target));
+            if (list.length === 0) return;
+
+            const ranked = list.map(p => {
+                const { stockVal, total, rate } = calculatePlayerAsset(p);
+                return { ...p, stockVal, total, rate };
+            }).sort((a, b) => b.total - a.total);
+
+            let csv = "\uFEFF순위,반,학번,이름,현금(원),주식평가액(원),총평가자산(원),수익률(%)\n";
+            ranked.forEach((p, i) => {
+                csv += `${i + 1},${p.classNum}반,${p.studentId},${p.name},${p.cash},${p.stockVal},${p.total},${p.rate.toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `중3_심화모의주식_결과_${target === 'ALL' ? '전체반' : target + '반'}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        // --- 학생 빠른 매수 / 매도 실행 (+1, +5, 'max', -1, 'all') ---
+        window.tradeStock = async function(stockId, action) {
+            if (role !== 'student' || !myStudentDocId) return;
+
+            const gs = getActiveClassState(myClass);
+            const isTradeOpen = (gs.newsRound === gs.priceRound) && !gs.isFinished;
+            if (!isTradeOpen) {
+                showToast("현재는 뉴스 분석 대기 시간입니다. 선생님이 주가를 반영한 뒤 거래하세요!", true);
+                return;
+            }
+
+            const player = allPlayers[myStudentDocId];
+            if (!player) return;
+
+            const stock = STOCKS.find(s => s.id === stockId);
+            const currentPrice = stock.prices[gs.priceRound - 1];
+            const currentQty = (player.holdings && player.holdings[stockId]) || 0;
+
+            if (action === 'max' || (typeof action === 'number' && action > 0)) {
+                const maxAffordable = Math.floor(player.cash / currentPrice);
+                if (maxAffordable <= 0) {
+                    showToast("주문 가능 현금이 부족합니다!", true);
+                    return;
+                }
+                const buyQty = action === 'max' ? maxAffordable : Math.min(action, maxAffordable);
+                const totalCost = buyQty * currentPrice;
+                const newCash = player.cash - totalCost;
+                const newHoldings = { ...player.holdings, [stockId]: currentQty + buyQty };
+                await updatePlayerAccount(newCash, newHoldings);
+                showToast(`${stock.name} ${buyQty}주 매수 완료 (-${totalCost.toLocaleString()}원)`, false);
+            } else if (action === 'all' || (typeof action === 'number' && action < 0)) {
+                if (currentQty <= 0) {
+                    showToast("보유 중인 주식이 없습니다.", true);
+                    return;
+                }
+                const sellQty = action === 'all' ? currentQty : Math.min(Math.abs(action), currentQty);
+                const totalGain = sellQty * currentPrice;
+                const newCash = player.cash + totalGain;
+                const newHoldings = { ...player.holdings, [stockId]: currentQty - sellQty };
+                await updatePlayerAccount(newCash, newHoldings);
+                showToast(`${stock.name} ${sellQty}주 매도 완료 (+${totalGain.toLocaleString()}원)`, false);
+            }
+        };
+
+        async function updatePlayerAccount(newCash, newHoldings) {
+            if (!myStudentDocId) return;
+            allPlayers[myStudentDocId] = {
+                ...allPlayers[myStudentDocId],
+                cash: newCash,
+                holdings: newHoldings,
+                updatedAt: Date.now()
+            };
+            renderAll();
+
+            if (db && currentUser) {
+                const playerRef = doc(db, 'artifacts', appId, 'public', 'data', 'players_v31', myStudentDocId);
+                await updateDoc(playerRef, {
+                    cash: newCash,
+                    holdings: newHoldings,
+                    updatedAt: Date.now()
+                });
+            }
+        }
+
+        function showToast(msg, isError) {
+            const el = document.getElementById('toast-message');
+            el.innerText = msg;
+            el.className = `mt-3 p-2.5 rounded-xl text-xs font-bold text-center ${
+                isError ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-800'
+            }`;
+            el.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => el.classList.add('hidden'), 2000);
+        }
+
+        // --- 유틸리티: 학생 총자산 계산 ---
+        function calculatePlayerAsset(player) {
+            const cls = String(player.classNum || '5');
+            const gs = getActiveClassState(cls);
+            let stockVal = 0;
+            const priceIdx = gs.priceRound - 1;
+            STOCKS.forEach(s => {
+                const qty = (player.holdings && player.holdings[s.id]) || 0;
+                stockVal += qty * s.prices[priceIdx];
+            });
+            const total = player.cash + stockVal;
+            const rate = ((total - INITIAL_CASH) / INITIAL_CASH) * 100;
+            return { stockVal, total, rate };
+        }
+
+        function getTierBadgeStyle(tier) {
+            if (tier.includes('대장') || tier.includes('대형') || tier.includes('시중은행') || tier.includes('라면') || tier.includes('완성차')) {
+                return 'bg-emerald-100 text-emerald-800';
+            }
+            if (tier.includes('적자') || tier.includes('도박') || tier.includes('패키지')) {
+                return 'bg-rose-100 text-rose-800';
+            }
+            return 'bg-amber-100 text-amber-800';
+        }
+
+        // --- 전체 화면 렌더링 ---
+        function renderAll() {
+            const activeCls = role === 'student' ? myClass : selectedTeacherClass;
+            const isAllMode = (role === 'teacher' && selectedTeacherClass === 'ALL');
+
+            renderTicker(isAllMode ? '5' : activeCls);
+            updateTimerUI();
+            if (!role) return;
+
+            const classSwitcher = document.getElementById('teacher-class-switcher');
+            const timerWrapper = document.getElementById('timer-box-wrapper');
+            const teacherControls = document.getElementById('teacher-controls');
+            const teacherTimerBtns = document.getElementById('teacher-timer-btns');
+            const memoBox = document.getElementById('teacher-memo-box');
+            const leftCol = document.getElementById('left-market-column');
+            const rightCol = document.getElementById('right-rank-column');
+
+            if (role === 'teacher') {
+                classSwitcher.classList.remove('hidden');
+                teacherControls.classList.remove('hidden');
+                timerWrapper.classList.toggle('hidden', isAllMode);
+                teacherTimerBtns.classList.toggle('hidden', isAllMode);
+                document.getElementById('btn-memo-toggle').classList.toggle('hidden', isAllMode);
+                document.getElementById('btn-next-phase').classList.toggle('hidden', isAllMode);
+                document.getElementById('btn-reset-game').classList.toggle('hidden', isAllMode);
+            } else {
+                classSwitcher.classList.add('hidden');
+                teacherControls.classList.add('hidden');
+                teacherTimerBtns.classList.add('hidden');
+                timerWrapper.classList.remove('hidden');
+            }
+
+            if (isAllMode) {
+                leftCol.classList.add('hidden');
+                rightCol.className = "lg:col-span-12 flex flex-col gap-4";
+                memoBox.classList.add('hidden');
+
+                document.getElementById('round-badge').innerText = "🏆 전체 반 통합 리더보드";
+                document.getElementById('round-badge').className = "bg-amber-500 text-slate-950 text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                document.getElementById('header-title').innerText = "중3 전체 반 종합 투자 수익률 순위";
+                document.getElementById('user-role-label').innerText = "각 반별로 진행한 모든 학생의 최종 평가자산을 통합 정렬합니다.";
+                document.getElementById('leaderboard-title').innerText = "🏆 중3 전체 반 종합 순위 전광판";
+
+                document.getElementById('student-portfolio-panel').classList.add('hidden');
+                document.getElementById('leaderboard-panel').classList.remove('hidden');
+                renderLeaderboard();
+                return;
+            }
+
+            leftCol.classList.remove('hidden');
+            rightCol.className = "lg:col-span-5 flex flex-col gap-4";
+
+            const gs = getActiveClassState(activeCls);
+            const currentRoundObj = ROUNDS[gs.newsRound - 1];
+            const isTradeOpen = (gs.newsRound === gs.priceRound) && !gs.isFinished;
+
+            const roundBadge = document.getElementById('round-badge');
+            const headerTitle = document.getElementById('header-title');
+            const userRoleLabel = document.getElementById('user-role-label');
+
+            if (gs.isFinished) {
+                roundBadge.innerText = `🏁 ${activeCls}반 최종 결과 (10R)`;
+                roundBadge.className = "bg-amber-500 text-slate-950 text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                headerTitle.innerText = "10회차 모든 거래 종료 · 최종 순위 확정";
+            } else if (isTradeOpen) {
+                roundBadge.innerText = `${activeCls}반 · ${gs.priceRound} / ${TOTAL_ROUNDS}회차 거래 중`;
+                roundBadge.className = "bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                headerTitle.innerText = currentRoundObj.title;
+            } else {
+                roundBadge.innerText = `${activeCls}반 · ${gs.newsRound} / ${TOTAL_ROUNDS}회차 뉴스 공개`;
+                roundBadge.className = "bg-rose-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                headerTitle.innerText = `${gs.newsRound}회차 뉴스 분석 및 주가 예측 중`;
+            }
+
+            userRoleLabel.innerText = role === 'teacher'
+                ? `교사 전광판 모드 · 3학년 ${activeCls}반 (타이머 종료 전에도 즉시 진행 가능)`
+                : `투자자: ${myClass}반 ${myStudentName} (${myStudentId})`;
+
+            if (role === 'teacher') {
+                const nextBtn = document.getElementById('btn-next-phase');
+                if (gs.isFinished) {
+                    nextBtn.innerText = "🏆 10회차 종료 (초기화 가능)";
+                    nextBtn.disabled = true;
+                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-300 text-slate-600 cursor-not-allowed";
+                } else if (isTradeOpen) {
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = `${gs.priceRound + 1}회차 뉴스 즉시 공개 ▶`;
+                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all";
+                } else {
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = `📈 ${gs.newsRound}회차 주가 즉시 반영!`;
+                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-rose-600 text-white hover:bg-rose-700 shadow-sm animate-pulse transition-all";
+                }
+
+                if (showMemo) {
+                    memoBox.classList.remove('hidden');
+                    document.getElementById('teacher-memo-text').innerText = currentRoundObj.memo;
+                } else {
+                    memoBox.classList.add('hidden');
+                }
+            } else {
+                memoBox.classList.add('hidden');
+            }
+
+            document.getElementById('news-banner-label').innerText = `BREAKING NEWS · ${activeCls}반 심층 경제 속보`;
+            document.getElementById('news-headline').innerText = `"${currentRoundObj.headline}"`;
+            const newsStepBadge = document.getElementById('news-step-badge');
+            if (gs.isFinished) {
+                newsStepBadge.innerText = "최종 주가 반영 완료";
+                newsStepBadge.className = "text-xs font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-full";
+            } else if (isTradeOpen) {
+                newsStepBadge.innerText = "매수/매도 가능";
+                newsStepBadge.className = "text-xs font-bold bg-emerald-500 text-white px-2.5 py-1 rounded-full";
+            } else {
+                newsStepBadge.innerText = "뉴스 분석 중 (곧 주가 반영)";
+                newsStepBadge.className = "text-xs font-bold bg-rose-500 text-white px-2.5 py-1 rounded-full";
+            }
+
+            const newsListEl = document.getElementById('news-list');
+            newsListEl.innerHTML = currentRoundObj.news.map(item => `
+                <div class="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="text-indigo-600 font-black mt-0.5">•</span>
+                    <p class="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">${item}</p>
+                </div>
+            `).join('');
+
+            renderStockMarketGrid(activeCls, STOCKS, gs);
+
+            const studentPanel = document.getElementById('student-portfolio-panel');
+            const leaderboardPanel = document.getElementById('leaderboard-panel');
+            document.getElementById('leaderboard-title').innerText = `3학년 ${activeCls}반 실시간 순위`;
+
+            if (role === 'student') {
+                studentPanel.classList.remove('hidden');
+                renderStudentPortfolio(isTradeOpen, STOCKS, gs);
+                if (gs.isFinished) {
+                    leaderboardPanel.classList.remove('hidden');
+                    renderLeaderboard();
+                } else {
+                    leaderboardPanel.classList.add('hidden');
+                }
+            } else {
+                studentPanel.classList.add('hidden');
+                leaderboardPanel.classList.remove('hidden');
+                renderLeaderboard();
+            }
+        }
+
+        function renderTicker(cls) {
+            const container = document.getElementById('ticker-container');
+            const gs = getActiveClassState(cls);
+            const idx = gs.priceRound - 1;
+            const prevIdx = Math.max(0, idx - 1);
+
+            const itemsHtml = STOCKS.map(s => {
+                const cur = s.prices[idx];
+                const prev = s.prices[prevIdx];
+                const diff = cur - prev;
+                const pct = prev > 0 ? ((diff / prev) * 100).toFixed(1) : '0.0';
+
+                let badge = `<span class="text-slate-400">0.0%</span>`;
+                if (diff > 0) badge = `<span class="text-rose-400">▲ +${pct}%</span>`;
+                else if (diff < 0) badge = `<span class="text-sky-400">▼ ${pct}%</span>`;
+
+                return `<span class="inline-flex items-center gap-1.5">
+                    <span class="text-slate-400">[${s.theme}]</span>
+                    <span class="text-white">${s.name}</span>
+                    <span class="text-amber-300">${cur.toLocaleString()}원</span>
+                    ${badge}
+                </span>`;
+            }).join('');
+
+            container.innerHTML = itemsHtml + itemsHtml;
+        }
+
+        function renderStockMarketGrid(cls, stocks, gs) {
+            // 테마 필터 탭 렌더링
+            const tabsEl = document.getElementById('market-theme-tabs');
+            const allTabs = [{ id: 'ALL', label: '전체 (18)' }, ...THEMES];
+            tabsEl.innerHTML = allTabs.map(t => {
+                const active = selectedMarketTheme === t.id;
+                return `<button type="button" onclick="setMarketTheme('${t.id}')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-extrabold whitespace-nowrap transition-all ${
+                        active ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }">${t.label}</button>`;
+            }).join('');
+
+            const grid = document.getElementById('stock-market-grid');
+            const idx = gs.priceRound - 1;
+            const prevIdx = Math.max(0, idx - 1);
+
+            const filtered = selectedMarketTheme === 'ALL'
+                ? stocks
+                : stocks.filter(s => s.theme === selectedMarketTheme);
+
+            grid.innerHTML = filtered.map(s => {
+                const cur = s.prices[idx];
+                const prev = s.prices[prevIdx];
+                const diff = cur - prev;
+                const pct = prev > 0 ? ((diff / prev) * 100).toFixed(1) : '0.0';
+
+                let changeHtml = `<span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">보합 0%</span>`;
+                if (diff > 0) {
+                    changeHtml = `<span class="text-xs font-extrabold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">▲ +${pct}%</span>`;
+                } else if (diff < 0) {
+                    changeHtml = `<span class="text-xs font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">▼ ${pct}%</span>`;
+                }
+
+                const tierStyle = getTierBadgeStyle(s.tier);
+
+                return `
+                    <div class="p-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white transition-all">
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <div>
+                                <div class="flex items-center gap-1 flex-wrap mb-0.5">
+                                    <span class="text-[10px] font-bold text-indigo-600">${s.theme}</span>
+                                    <span class="text-[10px] font-extrabold px-1.5 py-0.2 rounded ${tierStyle}">${s.tier}</span>
+                                </div>
+                                <span class="font-black text-sm text-slate-900">${s.name}</span>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="font-black text-sm sm:text-base text-slate-900 block">${cur.toLocaleString()}원</span>
+                                ${changeHtml}
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-snug mt-1">${s.desc}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStudentPortfolio(isTradeOpen, stocks, gs) {
+            const player = allPlayers[myStudentDocId] || {
+                docId: myStudentDocId,
+                classNum: myClass,
+                studentId: myStudentId,
+                name: myStudentName,
+                cash: INITIAL_CASH,
+                holdings: {}
+            };
+
+            const { stockVal, total, rate } = calculatePlayerAsset(player);
+
+            document.getElementById('student-info-badge').innerText = `${player.classNum}반 ${player.studentId} ${player.name}`;
+            document.getElementById('my-total-asset').innerText = `${total.toLocaleString()}원`;
+            document.getElementById('my-cash').innerText = `${player.cash.toLocaleString()}원`;
+            document.getElementById('my-stock-value').innerText = `${stockVal.toLocaleString()}원`;
+
+            const rateEl = document.getElementById('my-return-rate');
+            if (rate > 0) {
+                rateEl.innerText = `(▲ +${rate.toFixed(1)}%)`;
+                rateEl.className = "text-xs font-extrabold text-rose-600 block";
+            } else if (rate < 0) {
+                rateEl.innerText = `(▼ ${rate.toFixed(1)}%)`;
+                rateEl.className = "text-xs font-extrabold text-blue-600 block";
+            } else {
+                rateEl.innerText = `(0.0%)`;
+                rateEl.className = "text-xs font-extrabold text-slate-500 block";
+            }
+
+            const lockBanner = document.getElementById('trade-lock-banner');
+            if (!isTradeOpen) {
+                lockBanner.classList.remove('hidden');
+            } else {
+                lockBanner.classList.add('hidden');
+            }
+
+            // 학생 계좌 테마/보유종목 필터 탭
+            const pTabsEl = document.getElementById('portfolio-theme-tabs');
+            const heldCount = stocks.filter(s => ((player.holdings && player.holdings[s.id]) || 0) > 0).length;
+            const pTabs = [
+                { id: 'ALL', label: '전체 (18)' },
+                { id: 'HELD', label: `⭐ 보유중 (${heldCount})` },
+                ...THEMES
+            ];
+            pTabsEl.innerHTML = pTabs.map(t => {
+                const active = selectedPortfolioTheme === t.id;
+                return `<button type="button" onclick="setPortfolioTheme('${t.id}')"
+                    class="px-2.5 py-1 rounded-lg text-xs font-extrabold whitespace-nowrap transition-all ${
+                        active ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }">${t.label}</button>`;
+            }).join('');
+
+            const controls = document.getElementById('portfolio-controls');
+            const idx = gs.priceRound - 1;
+            const prevIdx = Math.max(0, idx - 1);
+
+            let filteredStocks = stocks;
+            if (selectedPortfolioTheme === 'HELD') {
+                filteredStocks = stocks.filter(s => ((player.holdings && player.holdings[s.id]) || 0) > 0);
+            } else if (selectedPortfolioTheme !== 'ALL') {
+                filteredStocks = stocks.filter(s => s.theme === selectedPortfolioTheme);
+            }
+
+            if (filteredStocks.length === 0) {
+                controls.innerHTML = `<div class="col-span-2 text-center text-slate-400 text-xs py-10">현재 보유 중인 종목이 없습니다. [전체] 탭에서 매수해 보세요!</div>`;
+                return;
+            }
+
+            controls.innerHTML = filteredStocks.map(s => {
+                const price = s.prices[idx];
+                const prevPrice = s.prices[prevIdx];
+                const diff = price - prevPrice;
+                const pct = prevPrice > 0 ? ((diff / prevPrice) * 100).toFixed(1) : '0.0';
+                const pctBadge = diff > 0
+                    ? `<span class="text-rose-600 font-extrabold ml-1">▲${pct}%</span>`
+                    : (diff < 0 ? `<span class="text-blue-600 font-extrabold ml-1">▼${pct}%</span>` : '');
+
+                const qty = (player.holdings && player.holdings[s.id]) || 0;
+                const canBuy = isTradeOpen && player.cash >= price;
+                const canSell = isTradeOpen && qty > 0;
+
+                return `
+                    <div class="p-2.5 rounded-xl border ${qty > 0 ? 'border-indigo-300 bg-indigo-50/40' : 'border-slate-200 bg-white'} flex flex-col justify-between gap-2">
+                        <div class="flex items-start justify-between gap-1">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 block">${s.theme} · ${s.tier}</span>
+                                <span class="font-extrabold text-xs sm:text-sm text-slate-900">${s.name}</span>
+                                <span class="text-[11px] text-slate-600 font-bold block">${price.toLocaleString()}원${pctBadge}</span>
+                            </div>
+                            <span class="text-xs font-black px-2 py-0.5 rounded-lg shrink-0 ${qty > 0 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'}">
+                                ${qty}주
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-1">
+                            <button type="button" onclick="tradeStock('${s.id}', 1)" ${!canBuy ? 'disabled' : ''}
+                                class="py-1.5 rounded-lg text-[11px] font-extrabold transition-all ${
+                                    canBuy ? 'bg-rose-600 text-white hover:bg-rose-700 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                }">
+                                +1주
+                            </button>
+                            <button type="button" onclick="tradeStock('${s.id}', 5)" ${!canBuy ? 'disabled' : ''}
+                                class="py-1.5 rounded-lg text-[11px] font-extrabold transition-all ${
+                                    canBuy ? 'bg-rose-500 text-white hover:bg-rose-600 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                }">
+                                +5주
+                            </button>
+                            <button type="button" onclick="tradeStock('${s.id}', 'max')" ${!canBuy ? 'disabled' : ''}
+                                class="py-1.5 rounded-lg text-[11px] font-extrabold transition-all ${
+                                    canBuy ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                }">
+                                최대
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-1">
+                            <button type="button" onclick="tradeStock('${s.id}', -1)" ${!canSell ? 'disabled' : ''}
+                                class="py-1.5 rounded-lg text-[11px] font-extrabold transition-all ${
+                                    canSell ? 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                }">
+                                매도 -1
+                            </button>
+                            <button type="button" onclick="tradeStock('${s.id}', 'all')" ${!canSell ? 'disabled' : ''}
+                                class="py-1.5 rounded-lg text-[11px] font-extrabold transition-all ${
+                                    canSell ? 'bg-slate-700 text-white hover:bg-slate-800 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                }">
+                                전량매도
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderLeaderboard() {
+            const listEl = document.getElementById('leaderboard-list');
+            const countBadge = document.getElementById('player-count-badge');
+            const targetClass = role === 'student' ? myClass : selectedTeacherClass;
+            const isAllMode = (targetClass === 'ALL');
+
+            const playersArr = Object.values(allPlayers)
+                .filter(p => isAllMode || String(p.classNum) === String(targetClass))
+                .map(p => {
+                    const { stockVal, total, rate } = calculatePlayerAsset(p);
+                    return { ...p, stockVal, total, rate };
+                });
+
+            playersArr.sort((a, b) => b.total - a.total);
+            countBadge.innerText = `참여 ${playersArr.length}명`;
+
+            if (playersArr.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center text-slate-500 text-sm py-12">
+                        학생들이 반과 학번을 입력해 입장하면 실시간 순위가 표시됩니다.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = playersArr.map((p, index) => {
+                const rank = index + 1;
+                let rankIcon = `<span class="w-6 h-6 rounded-full bg-slate-800 text-slate-300 text-xs font-black inline-flex items-center justify-center">${rank}</span>`;
+                let cardBorder = "border-slate-800 bg-slate-800/60";
+
+                if (rank === 1) {
+                    rankIcon = `<span class="text-lg">🥇</span>`;
+                    cardBorder = "border-amber-400/60 bg-amber-500/10";
+                } else if (rank === 2) {
+                    rankIcon = `<span class="text-lg">🥈</span>`;
+                    cardBorder = "border-slate-400/50 bg-slate-400/10";
+                } else if (rank === 3) {
+                    rankIcon = `<span class="text-lg">🥉</span>`;
+                    cardBorder = "border-orange-500/50 bg-orange-500/10";
+                }
+
+                const rateColor = p.rate > 0 ? 'text-rose-400' : (p.rate < 0 ? 'text-sky-400' : 'text-slate-400');
+                const rateSign = p.rate > 0 ? '+' : '';
+
+                const heldTags = STOCKS.filter(s => (p.holdings && p.holdings[s.id] > 0))
+                    .map(s => `<span class="bg-slate-900/90 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-semibold">${s.short} ${p.holdings[s.id]}</span>`)
+                    .join(' ');
+
+                const classBadge = isAllMode
+                    ? `<span class="bg-indigo-600/80 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded">${p.classNum}반</span>`
+                    : '';
+
+                const kickBtn = role === 'teacher'
+                    ? `<button type="button" onclick="removeStudent('${p.docId}')" title="학생 계정 삭제" class="ml-1.5 w-6 h-6 rounded-lg bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white text-xs font-bold inline-flex items-center justify-center transition-all">✕</button>`
+                    : '';
+
+                return `
+                    <div class="p-3 rounded-xl border ${cardBorder} flex items-center justify-between gap-2 transition-all">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="shrink-0 w-7 text-center">${rankIcon}</div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    ${classBadge}
+                                    <span class="font-black text-sm text-white truncate">${p.name}</span>
+                                    <span class="text-[11px] text-slate-400 font-semibold">(${p.studentId})</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${heldTags || '<span class="text-[10px] text-slate-500">전액 현금 보유</span>'}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center shrink-0">
+                            <div class="text-right">
+                                <span class="font-black text-sm sm:text-base text-white block">${p.total.toLocaleString()}원</span>
+                                <span class="text-xs font-extrabold ${rateColor}">${rateSign}${p.rate.toFixed(1)}%</span>
+                            </div>
+                            ${kickBtn}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 앱 시작
+        initFirebase();
+    </script>
+</body>
+</html>
