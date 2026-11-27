@@ -598,9 +598,9 @@
         function getDefaultClassState(cls) {
             return {
                 classNum: String(cls),
-                priceRound: 1,
-                newsRound: 1,
+                round: 1,
                 isStarted: false,
+                isTrading: false,
                 isFinished: false,
                 timerEndAt: Date.now() + ROUND_DURATION_SEC * 1000,
                 timerPausedRemaining: ROUND_DURATION_SEC * 1000
@@ -610,6 +610,19 @@
         function getActiveClassState(cls) {
             const c = String(cls || '5');
             return classStates[c] || getDefaultClassState(c);
+        }
+
+        // 현재 반영된 주가 인덱스 계산
+        // 1R 거래 중 -> prices[0](기준가), 1R 반영 후 -> prices[0]
+        // 2R 뉴스 공개 & 거래 중 -> prices[0](변동 전 주가로 매매!), 2R 주가 반영 후 -> prices[1](변동 주가!)
+        // ... 10R 뉴스 공개 & 거래 중 -> prices[8], 10R 주가 반영 후 -> prices[9](최종 주가!)
+        function getCurrentPriceIndex(gs) {
+            if (!gs.isStarted) return 0;
+            if (gs.isTrading) {
+                return Math.max(0, gs.round - 2);
+            } else {
+                return Math.min(TOTAL_ROUNDS - 1, Math.max(0, gs.round - 1));
+            }
         }
 
         function buildEmptyHoldings() {
@@ -915,10 +928,10 @@
             setTimeout(() => {
                 btn.innerText = origText;
                 btn.className = origClass;
-            }, 2200);
+            }, 2000);
         }
 
-        // --- 교사 10라운드 진행 컨트롤 (라운드 시작 버튼 포함) ---
+        // --- 교사 10라운드 진행 컨트롤 (뉴스 선공개 -> 거래 -> 주가 반영) ---
         window.advanceGamePhase = async function() {
             if (role !== 'teacher' || selectedTeacherClass === 'ALL') return;
 
@@ -928,23 +941,26 @@
             if (gs.isFinished) {
                 return;
             } else if (!gs.isStarted) {
+                // 1회차 개장 & 거래 시작
                 nextState.isStarted = true;
+                nextState.round = 1;
+                nextState.isTrading = true;
                 nextState.timerEndAt = Date.now() + ROUND_DURATION_SEC * 1000;
                 nextState.timerPausedRemaining = null;
-            } else if (gs.newsRound === gs.priceRound) {
-                if (gs.newsRound < TOTAL_ROUNDS) {
-                    nextState.newsRound = gs.newsRound + 1;
-                    nextState.timerEndAt = Date.now() + ROUND_DURATION_SEC * 1000;
-                    nextState.timerPausedRemaining = null;
-                }
-            } else if (gs.newsRound > gs.priceRound) {
-                nextState.priceRound = gs.newsRound;
-                if (nextState.priceRound === TOTAL_ROUNDS) {
+            } else if (gs.isTrading) {
+                // 현재 회차 거래 마감 & 주가 변동 반영!
+                nextState.isTrading = false;
+                if (gs.round >= TOTAL_ROUNDS) {
                     nextState.isFinished = true;
                 } else {
-                    nextState.timerEndAt = Date.now() + ROUND_DURATION_SEC * 1000;
-                    nextState.timerPausedRemaining = null;
+                    nextState.timerPausedRemaining = ROUND_DURATION_SEC * 1000;
                 }
+            } else {
+                // 다음 회차 뉴스 공개 & 거래 시작!
+                nextState.round = Math.min(TOTAL_ROUNDS, gs.round + 1);
+                nextState.isTrading = true;
+                nextState.timerEndAt = Date.now() + ROUND_DURATION_SEC * 1000;
+                nextState.timerPausedRemaining = null;
             }
 
             classStates[selectedTeacherClass] = nextState;
@@ -1037,9 +1053,9 @@
             if (role !== 'student' || !myStudentDocId) return;
 
             const gs = getActiveClassState(myClass);
-            const isTradeOpen = gs.isStarted && (gs.newsRound === gs.priceRound) && !gs.isFinished;
+            const isTradeOpen = gs.isStarted && gs.isTrading && !gs.isFinished;
             if (!isTradeOpen) {
-                showToast("현재는 거래 대기 시간입니다. 선생님이 라운드를 시작하거나 주가를 반영한 뒤 거래하세요!", true);
+                showToast("현재는 거래 대기 시간입니다. 선생님이 다음 뉴스와 거래를 열면 매매하세요!", true);
                 return;
             }
 
@@ -1047,7 +1063,8 @@
             if (!player) return;
 
             const stock = STOCKS.find(s => s.id === stockId);
-            const currentPrice = stock.prices[gs.priceRound - 1];
+            const priceIdx = getCurrentPriceIndex(gs);
+            const currentPrice = stock.prices[priceIdx];
             const currentQty = (player.holdings && player.holdings[stockId]) || 0;
 
             if (action === 'max' || (typeof action === 'number' && action > 0)) {
@@ -1112,7 +1129,7 @@
             const cls = String(player.classNum || '5');
             const gs = getActiveClassState(cls);
             let stockVal = 0;
-            const priceIdx = gs.priceRound - 1;
+            const priceIdx = getCurrentPriceIndex(gs);
             STOCKS.forEach(s => {
                 const qty = (player.holdings && player.holdings[s.id]) || 0;
                 stockVal += qty * s.prices[priceIdx];
@@ -1185,8 +1202,8 @@
             rightCol.className = "lg:col-span-5 flex flex-col gap-4";
 
             const gs = getActiveClassState(activeCls);
-            const currentRoundObj = ROUNDS[gs.newsRound - 1];
-            const isTradeOpen = gs.isStarted && (gs.newsRound === gs.priceRound) && !gs.isFinished;
+            const currentRoundObj = ROUNDS[Math.min(TOTAL_ROUNDS - 1, Math.max(0, gs.round - 1))];
+            const isTradeOpen = gs.isStarted && gs.isTrading && !gs.isFinished;
 
             const roundBadge = document.getElementById('round-badge');
             const headerTitle = document.getElementById('header-title');
@@ -1201,13 +1218,13 @@
                 roundBadge.className = "bg-slate-700 text-amber-300 text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
                 headerTitle.innerText = "학생 접속 확인 후 선생님이 라운드를 시작합니다";
             } else if (isTradeOpen) {
-                roundBadge.innerText = `${activeCls}반 · ${gs.priceRound} / ${TOTAL_ROUNDS}회차 거래 중`;
-                roundBadge.className = "bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
-                headerTitle.innerText = currentRoundObj.title;
+                roundBadge.innerText = `${activeCls}반 · ${gs.round} / ${TOTAL_ROUNDS}회차 거래 중`;
+                roundBadge.className = "bg-emerald-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                headerTitle.innerText = `${gs.round}회차 뉴스 공개! (지금 매수/매도 가능)`;
             } else {
-                roundBadge.innerText = `${activeCls}반 · ${gs.newsRound} / ${TOTAL_ROUNDS}회차 뉴스 공개`;
-                roundBadge.className = "bg-rose-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
-                headerTitle.innerText = `${gs.newsRound}회차 뉴스 분석 및 주가 예측 중`;
+                roundBadge.innerText = `${activeCls}반 · ${gs.round} / ${TOTAL_ROUNDS}회차 주가 반영 완료`;
+                roundBadge.className = "bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                headerTitle.innerText = `${gs.round}회차 주가 결과 발표 완료`;
             }
 
             userRoleLabel.innerText = role === 'teacher'
@@ -1222,16 +1239,16 @@
                     nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-300 text-slate-600 cursor-not-allowed";
                 } else if (!gs.isStarted) {
                     nextBtn.disabled = false;
-                    nextBtn.innerText = "🚀 1회차 라운드 시작하기 ▶";
+                    nextBtn.innerText = "🚀 1회차 개장 & 거래 시작 ▶";
                     nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md animate-pulse transition-all";
                 } else if (isTradeOpen) {
                     nextBtn.disabled = false;
-                    nextBtn.innerText = `${gs.priceRound + 1}회차 뉴스 즉시 공개 ▶`;
-                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all";
+                    nextBtn.innerText = `📈 ${gs.round}회차 주가 변동 즉시 반영!`;
+                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-rose-600 text-white hover:bg-rose-700 shadow-sm animate-pulse transition-all";
                 } else {
                     nextBtn.disabled = false;
-                    nextBtn.innerText = `📈 ${gs.newsRound}회차 주가 즉시 반영!`;
-                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-rose-600 text-white hover:bg-rose-700 shadow-sm animate-pulse transition-all";
+                    nextBtn.innerText = `📰 ${gs.round + 1}회차 뉴스 공개 & 거래 시작 ▶`;
+                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all";
                 }
 
                 if (showMemo) {
@@ -1244,7 +1261,7 @@
                 memoBox.classList.add('hidden');
             }
 
-            document.getElementById('news-banner-label').innerText = `BREAKING NEWS · ${activeCls}반 심층 경제 속보`;
+            document.getElementById('news-banner-label').innerText = `BREAKING NEWS · ${activeCls}반 ${gs.round}회차 속보`;
             document.getElementById('news-headline').innerText = `"${currentRoundObj.headline}"`;
             const newsStepBadge = document.getElementById('news-step-badge');
             if (gs.isFinished) {
@@ -1254,11 +1271,11 @@
                 newsStepBadge.innerText = "개장 대기 중";
                 newsStepBadge.className = "text-xs font-bold bg-amber-500 text-slate-950 px-2.5 py-1 rounded-full";
             } else if (isTradeOpen) {
-                newsStepBadge.innerText = "매수/매도 가능";
+                newsStepBadge.innerText = "뉴스 보고 매수/매도 중!";
                 newsStepBadge.className = "text-xs font-bold bg-emerald-500 text-white px-2.5 py-1 rounded-full";
             } else {
-                newsStepBadge.innerText = "뉴스 분석 중 (곧 주가 반영)";
-                newsStepBadge.className = "text-xs font-bold bg-rose-500 text-white px-2.5 py-1 rounded-full";
+                newsStepBadge.innerText = "주가 반영 완료 (다음 뉴스 대기)";
+                newsStepBadge.className = "text-xs font-bold bg-indigo-500 text-white px-2.5 py-1 rounded-full";
             }
 
             const newsListEl = document.getElementById('news-list');
@@ -1294,7 +1311,7 @@
         function renderTicker(cls) {
             const container = document.getElementById('ticker-container');
             const gs = getActiveClassState(cls);
-            const idx = gs.priceRound - 1;
+            const idx = getCurrentPriceIndex(gs);
             const prevIdx = Math.max(0, idx - 1);
 
             const itemsHtml = STOCKS.map(s => {
@@ -1330,7 +1347,7 @@
             }).join('');
 
             const grid = document.getElementById('stock-market-grid');
-            const idx = gs.priceRound - 1;
+            const idx = getCurrentPriceIndex(gs);
             const prevIdx = Math.max(0, idx - 1);
 
             const filtered = selectedMarketTheme === 'ALL'
@@ -1405,8 +1422,8 @@
             const lockBanner = document.getElementById('trade-lock-banner');
             if (!isTradeOpen) {
                 lockBanner.innerText = !gs.isStarted
-                    ? "⏳ 입장 완료! 선생님이 [1회차 라운드 시작] 버튼을 누르면 매수/매도 버튼이 열립니다."
-                    : "🔒 현재 뉴스 분석 및 주가 발표 대기 중입니다. 선생님이 주가 결과를 공개한 뒤 다음 거래가 열립니다!";
+                    ? "⏳ 입장 완료! 선생님이 [1회차 개장 & 거래 시작] 버튼을 누르면 매수/매도 버튼이 열립니다."
+                    : "📊 현재 회차 주가가 반영되었습니다! 선생님이 다음 뉴스를 공개하면 매매가 다시 열립니다.";
                 lockBanner.classList.remove('hidden');
             } else {
                 lockBanner.classList.add('hidden');
@@ -1428,7 +1445,7 @@
             }).join('');
 
             const controls = document.getElementById('portfolio-controls');
-            const idx = gs.priceRound - 1;
+            const idx = getCurrentPriceIndex(gs);
             const prevIdx = Math.max(0, idx - 1);
 
             let filteredStocks = stocks;
