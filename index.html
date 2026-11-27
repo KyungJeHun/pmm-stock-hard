@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>중3 심화 8테마 18종목 모의 주식 거래소 v3.1</title>
+    <title>중3 심화 8테마 18종목 모의 주식 거래소 v3.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -51,7 +51,7 @@
         <div class="bg-white w-full max-w-md rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
             <div class="bg-gradient-to-r from-slate-900 via-indigo-900 to-blue-800 p-6 text-white text-center">
                 <span class="inline-block bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-extrabold px-3 py-1 rounded-full mb-2">
-                    중3 수학·경제 심화 프로젝트 v3.1
+                    중3 수학·경제 심화 프로젝트 v3.3
                 </span>
                 <h1 class="text-2xl font-black tracking-tight">실전 모의 주식 거래소</h1>
                 <p class="text-indigo-200 text-xs mt-1">초기 자본 1,000만 원 · 8대 테마 18개 기업 · 총 10라운드</p>
@@ -131,7 +131,7 @@
                 </div>
                 <div class="bg-slate-900 text-slate-200 p-3.5 rounded-2xl text-xs space-y-1.5 leading-relaxed">
                     <p class="font-bold text-amber-400">📺 교실 전광판 실시간 동기화 (동시 100명 지원)</p>
-                    <p>• 총 <strong>10라운드</strong>로 진행되며, 타이머 3분 이내라도 언제든 즉시 주가 반영 및 다음 라운드 진행이 가능합니다.</p>
+                    <p>• 학생들이 모두 접속한 것을 확인한 뒤 <strong>[🚀 1회차 라운드 시작하기]</strong> 버튼을 눌러 거래를 개시할 수 있습니다.</p>
                 </div>
                 <button type="button" id="btn-teacher-enter" onclick="enterAsTeacher()" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-extrabold rounded-xl shadow-md transition-all">
                     증권거래소 전광판 열기
@@ -164,10 +164,10 @@
                 </select>
 
                 <span id="round-badge" class="bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl">
-                    1 / 10회차 진행 중
+                    1 / 10회차 대기 중
                 </span>
                 <div>
-                    <h2 id="header-title" class="text-base sm:text-lg font-black text-slate-900">1회차 시장 개장</h2>
+                    <h2 id="header-title" class="text-base sm:text-lg font-black text-slate-900">1회차 시장 개장 대기</h2>
                     <p id="user-role-label" class="text-xs text-slate-500 font-semibold"></p>
                 </div>
             </div>
@@ -194,8 +194,8 @@
                 <button type="button" id="btn-memo-toggle" onclick="toggleMemo()" class="px-3 py-2 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-800 hover:bg-amber-200 transition-all">
                     💡 교사용 해설
                 </button>
-                <button type="button" onclick="advanceGamePhase()" id="btn-next-phase" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all">
-                    2회차 뉴스 공개하기 ▶
+                <button type="button" onclick="advanceGamePhase()" id="btn-next-phase" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-all">
+                    🚀 1회차 라운드 시작하기 ▶
                 </button>
                 <button type="button" id="btn-reset-game" onclick="openResetModal()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-rose-100 hover:text-rose-600 transition-all">
                     현재 반 초기화
@@ -235,7 +235,7 @@
                             <span id="news-banner-label" class="font-black text-sm tracking-wide">BREAKING NEWS · 심층 경제 속보</span>
                         </div>
                         <span id="news-step-badge" class="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full">
-                            거래 가능
+                            개장 대기
                         </span>
                     </div>
 
@@ -299,7 +299,7 @@
 
                     <!-- 거래 잠금 안내 배너 -->
                     <div id="trade-lock-banner" class="hidden mb-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold p-3 rounded-xl text-center">
-                        🔒 현재 거래 대기 중입니다. 선생님이 라운드를 시작하거나 주가를 반영할 때까지 잠시 기다려 주세요!
+                        🔒 현재 거래 대기 중입니다. 선생님이 라운드를 시작하거나 주가를 반영하면 매수/매도 버튼이 열립니다!
                     </div>
 
                     <!-- 학생용 테마 필터 탭 (보유종목 모아보기 포함) -->
@@ -340,7 +340,7 @@
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
             <h4 class="text-lg font-black text-slate-900 mb-2">현재 반의 게임을 초기화할까요?</h4>
             <p id="reset-modal-desc" class="text-xs text-slate-600 leading-relaxed mb-5">
-                선택한 반의 라운드가 1회차로 돌아가며, 해당 반 학생들의 자산과 보유 주식이 초기 자본금(10,000,000원)으로 리셋됩니다.
+                선택한 반의 라운드가 1회차 입장 대기 상태로 돌아가며, 해당 반 학생들의 자산과 보유 주식이 초기 자본금(10,000,000원)으로 리셋됩니다.
             </p>
             <div class="grid grid-cols-2 gap-2.5">
                 <button type="button" onclick="closeResetModal()" class="py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm hover:bg-slate-200">
@@ -386,196 +386,195 @@
             { id: '콘텐츠·게임', label: '🎮 콘텐츠·게임' }
         ];
 
-        // 8개 테마 × 총 18개 종목 (단일 고밀도 시나리오 · 폭등/폭락 함정 반영)
-        // prices 배열 인덱스 0~9 = 1라운드 ~ 10라운드 가격
+        // 8개 테마 × 총 18개 종목 (신규 시나리오 v3.3 주가 흐름 전면 교체)
         const STOCKS = [
             // 1. AI·반도체 (3기업)
             { id: 'ai_chip', name: '넥스트AI칩', short: 'AI칩', theme: 'AI·반도체', tier: '대장주·흑자',
-              desc: '글로벌 1위 AI 메모리 반도체 기업. 현금이 풍부해 금리·회계 쇼크에도 탄탄하게 버팀',
-              prices: [100000, 130000, 130000, 120000, 120000, 120000, 155000, 185000, 175000, 235000] },
+              desc: '글로벌 1위 AI 메모리 반도체 제조 기업. 현금 보유량이 풍부하고 재무 구조가 탄탄한 대형 우량주',
+              prices: [100000, 100000, 135000, 135000, 150000, 150000, 115000, 115000, 145000, 195000] },
             { id: 'ai_gpu', name: '루미너스GPU', short: 'GPU', theme: 'AI·반도체', tier: '고성장·고변동',
-              desc: 'AI 연산 칩 설계 전문 기업. AI 붐엔 폭발적 상승, 규제·고금리엔 크게 흔들림',
-              prices: [60000, 96000, 86000, 62000, 55000, 55000, 88000, 132000, 105000, 165000] },
-            { id: 'ai_soft', name: '딥코어소프트', short: '딥코어', theme: 'AI·반도체', tier: '적자·도박주',
-              desc: '적자 AI 소프트웨어 기업. 8R 정부 국책사업 선정으로 3배 폭등 후 9R 회계부정 적발로 대폭락!',
-              prices: [30000, 42000, 36000, 20000, 15000, 15000, 20000, 60000, 15000, 10000] },
+              desc: 'AI 연산용 시스템 반도체 설계 전문 기업. 기술 성장성이 높지만 금리와 규제 환경에 민감함',
+              prices: [60000, 54000, 96000, 96000, 115000, 115000, 72000, 72000, 98000, 148000] },
+            { id: 'ai_soft', name: '딥코어소프트', short: '딥코어', theme: 'AI·반도체', tier: '적자·고위험',
+              desc: '신생 AI 소프트웨어 개발사. 매출 규모가 작고 적자 상태이지만 정부 정책·수주 여부에 따라 변동성이 매우 큼',
+              prices: [30000, 24000, 39000, 39000, 44000, 44000, 22000, 22000, 26000, 18000] },
 
             // 2. 전기차·배터리 (3기업)
             { id: 'ev_car', name: '썬더모터스', short: '썬더차', theme: '전기차·배터리', tier: '글로벌 완성차',
-              desc: '전기차·하이브리드 병행 생산 글로벌 완성차. 환율 상승(수출) 및 보조금 수혜',
-              prices: [80000, 80000, 80000, 75000, 94000, 94000, 118000, 118000, 138000, 175000] },
+              desc: '전기차와 하이브리드를 병행 생산하는 글로벌 완성차 기업. 해외 수출 비중과 보조금 정책의 영향을 크게 받음',
+              prices: [80000, 96000, 96000, 112000, 105000, 105000, 125000, 125000, 155000, 185000] },
             { id: 'ev_bat', name: '볼트배터리', short: '배터리', theme: '전기차·배터리', tier: '핵심 소재',
-              desc: '고효율 전고체·리튬 배터리 제조사. 보조금 확대 및 신기술 발표 시 급등',
-              prices: [70000, 70000, 63000, 52000, 58000, 58000, 85000, 85000, 110000, 145000] },
+              desc: '고효율 리튬·전고체 배터리 셀 제조사. 글로벌 완성차 수주 및 안전 규제 강화 시 반사이익 기대',
+              prices: [70000, 84000, 84000, 98000, 115000, 115000, 132000, 132000, 158000, 178000] },
             { id: 'ev_chg', name: '에코차징', short: '충전소', theme: '전기차·배터리', tier: '적자·인프라',
-              desc: '막대한 빚으로 충전소를 짓는 적자 기업. 금리 인상과 화재 규제에 치명적 약점',
-              prices: [25000, 25000, 22000, 13000, 11000, 11000, 15000, 15000, 9000, 7000] },
+              desc: '외부 차입금으로 전국 충전 인프라를 확장 중인 적자 기업. 이자 부담과 설비 안전 이슈에 취약함',
+              prices: [25000, 30000, 30000, 90000, 22500, 22500, 20000, 20000, 22000, 15000] },
 
             // 3. 바이오·헬스케어 (3기업)
             { id: 'bio_big', name: '셀리온바이오', short: '셀리온', theme: '바이오·헬스', tier: '대형 제약사',
-              desc: '복제약 수출과 안정적 현금을 보유한 대형 바이오 기업',
-              prices: [90000, 90000, 112000, 118000, 128000, 135000, 125000, 125000, 135000, 155000] },
-            { id: 'bio_new', name: '노바진신약', short: '노바진', theme: '바이오·헬스', tier: '임상 도박주',
-              desc: '항암 신약 하나에 사운을 건 벤처. 5R 임상 3상 성공 폭등(+175%) 후 6R 부작용 반토막(-72%) 함정!',
-              prices: [40000, 40000, 44000, 32000, 88000, 24000, 24000, 24000, 28000, 26000] },
+              desc: '바이오시밀러(복제약) 글로벌 수출로 안정적인 현금을 창출하는 대형 제약·바이오 기업',
+              prices: [90000, 90000, 108000, 108000, 115000, 46000, 52000, 52000, 68000, 82000] },
+            { id: 'bio_new', name: '노바진신약', short: '노바진', theme: '바이오·헬스', tier: '임상·고위험',
+              desc: '차세대 항암 신약 파이프라인 하나에 사운을 건 연구개발(R&D) 중심 바이오 벤처',
+              prices: [40000, 34000, 42000, 42000, 46000, 68000, 74000, 74000, 88000, 62000] },
             { id: 'bio_kit', name: '메디케어킷', short: '진단킷', theme: '바이오·헬스', tier: '방역·진단',
-              desc: '전염병 진단키트 전문 기업. 3R 팬데믹 폭등(+180%) 후 6R 엔데믹 선언으로 대폭락(-70%)!',
-              prices: [20000, 20000, 56000, 62000, 62000, 18000, 16000, 16000, 17000, 16000] },
+              desc: '감염병 신속 진단키트 및 방역 의료기기 전문 기업. 전염병 유행 여부에 실적이 직결됨',
+              prices: [20000, 20000, 20000, 18000, 18000, 22000, 58000, 52000, 22000, 20000] },
 
             // 4. 금융·은행 (2기업)
             { id: 'fin_bank', name: '우리민족금융', short: '민족금융', theme: '금융·은행', tier: '시중은행',
-              desc: '기준금리가 오르면 대출 이자 수익(예대마진)이 폭증하는 대표 배당주',
-              prices: [50000, 50000, 46000, 68000, 74000, 70000, 70000, 64000, 64000, 68000] },
+              desc: '예금과 대출을 주력으로 하는 국내 대표 시중은행 지주사. 기준금리 변동에 예대마진이 크게 좌우됨',
+              prices: [50000, 55000, 50000, 46000, 46000, 42000, 58000, 58000, 64000, 68000] },
             { id: 'fin_pay', name: '핀테크페이', short: '핀테크', theme: '금융·은행', tier: '성장·간편결제',
-              desc: '비대면 온라인 결제 플랫폼. 집콕 소비와 금리 인하에 강하나 금리 인상엔 약함',
-              prices: [45000, 50000, 66000, 48000, 45000, 54000, 54000, 65000, 65000, 72000] },
+              desc: '모바일 간편결제·송금 플랫폼 기업. 비대면 온라인 소비 증가와 저금리 환경에서 성장성이 부각됨',
+              prices: [45000, 45000, 54000, 62000, 62000, 142600, 128000, 145000, 138000, 152000] },
 
             // 5. 항공·여행 (2기업)
             { id: 'air_big', name: '대한하늘항공', short: '하늘항공', theme: '항공·여행', tier: '대형·화물겸업',
-              desc: '화물 운송 비중이 높아 팬데믹·유가 충격을 일부 방어하고 엔데믹 때 크게 반등함',
-              prices: [40000, 40000, 26000, 24000, 20000, 36000, 30000, 33000, 36000, 40000] },
+              desc: '국제선 여객과 글로벌 항공 화물 운송을 함께 운영하는 대형 항공사. 유가·환율과 여객 수요에 민감함',
+              prices: [40000, 22000, 24000, 34000, 34000, 38000, 26000, 32000, 46000, 52000] },
             { id: 'air_tour', name: '블루오션투어', short: '블루투어', theme: '항공·여행', tier: '해외 패키지',
-              desc: '100% 해외여행 전문. 3R 팬데믹 봉쇄로 대폭락(-67%) 후 6R 엔데믹 보복여행으로 폭등(+180%)!',
-              prices: [30000, 30000, 10000, 9000, 8000, 22400, 19000, 22000, 25000, 29000] },
+              desc: '해외 패키지 여행 알선을 전업으로 하는 여행사. 국경 개방 여부와 해외여행 심리에 주가가 극단적으로 반응함',
+              prices: [30000, 15000, 16000, 28000, 28000, 32000, 14000, 18000, 38000, 44000] },
 
             // 6. 필수소비재 (2기업)
             { id: 'food_ramen', name: '맛나종합식품', short: '맛나식품', theme: '필수소비재', tier: '라면·K푸드',
-              desc: '불황에도 잘 팔리는 라면·간편식 1위. 해외 K-푸드 수출 폭발로 꾸준히 우상향',
-              prices: [55000, 55000, 66000, 72000, 78000, 75000, 70000, 74000, 82000, 102000] },
+              desc: '라면·간편식 시장 1위 식품 기업. 경기 불황에도 수요가 꾸준하며 해외 K-푸드 수출 비중이 빠르게 증가 중',
+              prices: [55000, 52000, 64000, 64000, 72000, 72000, 86000, 86000, 94000, 112000] },
             { id: 'food_mart', name: '프레시팜유통', short: '프레시팜', theme: '필수소비재', tier: '내수 식자재',
-              desc: '국내 마트·식자재 유통. 곡물가·유가 급등 시 운송비 부담으로 이익 감소',
-              prices: [35000, 35000, 39000, 39000, 36000, 36000, 29000, 31000, 33000, 36000] },
+              desc: '국내 대형마트 및 식자재 물류 유통 기업. 국제 곡물가와 화물 유류비 상승 시 원가 부담이 커짐',
+              prices: [35000, 26000, 28000, 33000, 33000, 33000, 38000, 38000, 42000, 45000] },
 
             // 7. 에너지·정유 (2기업)
             { id: 'eng_solar', name: '솔라윈드발전', short: '솔라윈드', theme: '에너지·정유', tier: '신재생에너지',
-              desc: '태양광·풍력 발전소 운영. AI 전력난 및 고유가·친환경 보조금 확대 시 폭등',
-              prices: [45000, 54000, 50000, 39000, 39000, 42000, 64000, 68000, 78000, 84000] },
+              desc: '태양광·풍력 발전 설비 운영 기업. 전력 수요 급증, 고유가, 친환경 보조금 확대 시 수혜를 입음',
+              prices: [45000, 68000, 74000, 82000, 75000, 75000, 75000, 75000, 88000, 96000] },
             { id: 'eng_oil', name: '오일맥스정유', short: '오일맥스', theme: '에너지·정유', tier: '전통 정유사',
-              desc: '원유 정제 및 석유화학 기업. 7R 중동 전쟁 위기·고유가 충격 시 급등(+38%)',
-              prices: [50000, 50000, 40000, 40000, 48000, 50000, 69000, 62000, 56000, 52000] },
+              desc: '원유 정제 및 석유화학 제품을 생산하는 정유사. 국제 유가 급등 시 정제마진과 재고평가이익이 커짐',
+              prices: [50000, 110000, 95000, 68000, 68000, 68000, 64000, 64000, 58000, 52000] },
 
             // 8. 콘텐츠·게임 (1기업)
             { id: 'game_px', name: '픽셀월드게임즈', short: '픽셀게임', theme: '콘텐츠·게임', tier: '글로벌 K-게임',
-              desc: '집콕 문화와 글로벌 신작 흥행, 달러 결제 매출 비중에 따라 크게 움직이는 게임사',
-              prices: [40000, 45000, 62000, 56000, 64000, 48000, 48000, 54000, 60000, 72000] }
+              desc: '글로벌 모바일·PC 게임을 서비스하는 콘텐츠 기업. 비대면 실내 활동 증가와 해외 신작 흥행에 민감함',
+              prices: [40000, 40000, 46000, 46000, 52000, 52000, 62000, 173600, 52000, 65000] }
         ];
 
-        // 10라운드 복합 현실 시나리오 (단일 통합본 · 폭등/폭락 함정 강화)
+        // 10라운드 복합 현실 시나리오 (v3.3 전면 개편 · 기존 스포일러 무력화)
         const ROUNDS = [
             {
                 round: 1,
                 title: "1회차 시장 개장: 1,000만 원 초기 포트폴리오 설계",
                 headline: "8개 테마 · 18개 상장 기업 동시 개장! 기업의 체질부터 분석하라",
                 news: [
-                    "아직 대형 경제 속보는 발표되지 않았습니다. 초기 자본금 1,000만 원으로 1회차 포트폴리오를 구성하세요.",
-                    "[핵심 규칙] 같은 테마 안에서도 '흑자 대장주', '고변동 성장주', '적자·도박주'에 따라 폭등과 대폭락의 명암이 극명하게 갈립니다.",
+                    "선생님이 라운드를 시작하면 1회차 거래가 열립니다. 초기 자본금 1,000만 원으로 포트폴리오를 구성하세요.",
+                    "[핵심 규칙] 같은 테마 안에서도 '흑자 대장주', '고변동 성장주', '적자·고위험주'에 따라 주가 등락폭이 크게 다릅니다.",
                     "선생님이 타이머(최대 3분) 도중이라도 주문을 마감하고 주가를 반영할 수 있으니 빠르게 판단하세요!"
                 ],
-                memo: "1회차는 기준가입니다. 18개 종목의 '기업 체질(대장주 vs 적자·도박주)' 설명을 읽어보게 한 뒤 2회차 뉴스로 넘어가세요."
+                memo: "1회차는 기준가입니다. 이번 버전은 이전 시나리오와 폭등·폭락 타이밍이 완전히 다릅니다!"
             },
             {
                 round: 2,
                 title: "2회차 거래 전 뉴스 속보",
-                headline: "글로벌 빅테크 '초거대 AI 데이터센터' 투자 전쟁 & 전력난 비상",
+                headline: "🚨 중동 호르무즈 해협 봉쇄! 국제 유가 150달러 초비상 & 에너지 대란",
                 news: [
-                    "[AI·반도체] 미국·유럽 빅테크들이 차세대 AI 학습용 서버 증설에 수백조 원을 쏟아붓기로 발표했습니다. GPU와 AI 메모리 칩 주문이 폭증하고 있습니다.",
-                    "[에너지] AI 데이터센터의 엄청난 전기 소비를 감당하기 위해 각국 정부가 태양광·풍력 발전소 인허가를 대폭 완화했습니다.",
-                    "[콘텐츠] AI 그래픽 기술을 적용한 한국산 모바일 신작 게임이 북미 사전예약 1위를 기록했습니다."
+                    "[유가 쇼크] 중동 군사 충돌로 원유 수송로가 막히며 국제 유가가 배럴당 150달러를 돌파했습니다! 원유 재고를 보유한 오일맥스정유가 폭등합니다.",
+                    "[대체에너지·전기차] 기름값 공포에 태양광·풍력(솔라윈드발전)과 전기차 테마가 동반 급등하고 있습니다.",
+                    "[물류·항공 직격탄] 항공유와 화물 트럭 유류비가 2배로 치솟으며 항공·여행·식자재 물류 기업이 급락하고 있습니다."
                 ],
-                memo: "AI·반도체 3종목 동반 상승(루미너스GPU +60%, 딥코어소프트 +40%, 넥스트AI칩 +30%). 솔라윈드발전(+20%), 픽셀게임(+12.5%) 상승."
+                memo: "첫 라운드부터 기습 유가 쇼크! 오일맥스정유(+120% 폭등), 솔라윈드발전(+51.1%), 전기차 3종목(+20%) 상승 vs 하늘항공(-45%), 블루투어(-50%), 프레시팜유통(-25.7%) 급락!"
             },
             {
                 round: 3,
                 title: "3회차 거래 전 뉴스 속보",
-                headline: "🚨 긴급 팬데믹 확산! 하늘길 전면 봉쇄 vs 진단키트·집콕 대폭등",
+                headline: "🤖 글로벌 초거대 AI 반도체 슈퍼사이클 개막 & K-푸드·바이오 수출 호조",
                 news: [
-                    "[긴급 방역] 전염력이 매우 강한 신종 호흡기 바이러스가 전 세계로 확산되며 국경 봉쇄와 재택근무가 전격 시행되었습니다.",
-                    "[폭락 경보] 해외여행이 전면 중단되며 100% 패키지 여행사(블루오션투어)는 생존 위기에 빠졌습니다. 화물 비중이 있는 대형 항공사는 일부 버티고 있습니다.",
-                    "[폭등 수혜] 진단키트(메디케어킷) 주문이 폭주하고, 집콕 생활로 라면·간편결제·게임 이용 시간이 폭발적으로 증가했습니다."
+                    "[AI·반도체 붐] 전 세계 클라우드 기업들이 차세대 AI 데이터센터 증설 경쟁에 돌입하며 메모리와 GPU 주문이 폭주하고 있습니다.",
+                    "[K-푸드·바이오] 북미·유럽 대형마트에 한국 라면과 바이오시밀러 복제약 입점이 대폭 확대되었습니다.",
+                    "[유가 진정세] 미국과 산유국들의 긴급 증산 합의로 치솟던 국제 유가가 진정되며 정유주는 차익 실현 매물이 나옵니다."
                 ],
-                memo: "첫 번째 도파민 라운드! 메디케어킷(+180%) 폭등, 블루오션투어(-66.7%) 대폭락 vs 대한하늘항공(-35%) 차별화! 핀테크페이(+32%), 픽셀게임(+37.8%), 맛나식품(+20%) 상승."
+                memo: "AI·반도체 3종목 동반 급등(루미너스GPU +77.8%, 딥코어소프트 +62.5%, 넥스트AI칩 +35%)! 맛나식품(+23.1%), 셀리온바이오(+20%) 상승 vs 오일맥스정유(-13.6%) 조정."
             },
             {
                 round: 4,
                 title: "4회차 거래 전 뉴스 속보",
-                headline: "한국은행 기준금리 '빅스텝(+0.5%p)' 전격 인상 & AI 규제법 통과",
+                headline: "⚡ [대박 수주] 에코차징, 글로벌 완성차 5개사 충전망 독점 공급 계약 체결!",
                 news: [
-                    "[금리 인상] 물가를 잡기 위해 한국은행이 기준금리를 0.5%p 전격 인상했습니다. 시중은행(우리민족금융)의 대출 이자 수익이 급증합니다.",
-                    "[부채 함정] 금리 급등으로 빚을 내서 충전소와 AI 소프트웨어를 개발하던 적자 기업들(딥코어소프트, 에코차징)이 심각한 자금난에 빠졌습니다.",
-                    "[규제 충격] 유럽연합(EU)이 강력한 AI 저작권 규제법을 통과시키며 고평가된 AI 종목에 매도 폭탄이 쏟아졌습니다."
+                    "[충전소 잭팟] 만년 적자 기업이던 에코차징이 글로벌 완성차 연합의 표준 초급속 충전망 단독 사업자로 선정되며 시장이 열광하고 있습니다!",
+                    "[유가 안정·여행] 국제 유가가 배럴당 70달러대로 완전히 안정되면서 억눌렸던 해외여행과 항공 여객 수요가 빠르게 회복됩니다.",
+                    "[전기차 확산] 충전 인프라 확대 기대감에 썬더모터스와 볼트배터리도 동반 강세를 보입니다."
                 ],
-                memo: "금리 인상 + 부채 함정! 우리민족금융(+47.8%) 급등! 빚 많은 적자주(딥코어 -44.4%, 에코차징 -40.9%, 루미너스GPU -27.9%)가 대장주(넥스트AI칩 -7.7%)보다 훨씬 크게 추락합니다."
+                memo: "첫 번째 도파민 함정! 에코차징(+200%, 3배 폭등)으로 학생들을 강하게 유혹합니다(다음 5라운드에 리콜 폭락 함정이 기다리고 있습니다). 블루오션투어(+75%), 하늘항공(+41.7%) 급등."
             },
             {
                 round: 5,
                 title: "5회차 거래 전 뉴스 속보",
-                headline: "🧬 노바진신약 항암제 임상 3상 극적 통과! & 환율 1,490원 강달러",
+                headline: "🔥 [긴급 반전] 에코차징 급속충전기 대규모 화재 리콜 사태 & 안전 배터리 수혜",
                 news: [
-                    "[바이오 잭팟] 만년 벤처기업이던 노바진신약의 차세대 항암제가 글로벌 임상 3상에서 기적적인 치료 효과를 입증하며 시장을 뒤흔들었습니다!",
-                    "[환율·수출] 원/달러 환율이 1,490원까지 치솟으며 국산 완성차(썬더모터스)와 K-푸드(맛나종합식품), 글로벌 게임의 원화 환산 이익이 급증했습니다.",
-                    "[달러 부채] 반면 항공유와 해외 경비를 달러로 결제하는 항공·여행 업계는 추가 타격을 입었습니다."
+                    "[리콜 충격파] 직전 라운드에서 3배 폭등했던 에코차징의 신형 충전기에서 과열 화재 결함이 발견되어 전량 리콜 및 계약 해지 위기에 빠졌습니다!",
+                    "[반사이익] 저가 충전소 사고로 안전 기술력이 검증된 볼트배터리(전고체 배터리)로 주문이 집중되고 있습니다.",
+                    "[강달러 수혜] 원/달러 환율이 상승하며 AI 반도체, K-푸드, 글로벌 게임 수출 기업의 이익이 늘어납니다."
                 ],
-                memo: "도박주 대폭등! 노바진신약(+175%) 2.75배 폭등! 수출주 썬더모터스(+25.3%), 맛나식품(+8.3%), 픽셀게임(+14.3%) 상승."
+                memo: "4R에 에코차징에 올인한 학생은 -75% 대폭락! 반대로 볼트배터리(+17.3%), 넥스트AI칩(+11.1%), 맛나식품(+12.5%), 픽셀게임(+13%)은 안정적으로 상승합니다."
             },
             {
                 round: 6,
                 title: "6회차 거래 전 뉴스 속보",
-                headline: "⚠️ [대반전 함정] 노바진신약 판매 취소 & WHO 엔데믹(팬데믹 종식) 선언!",
+                headline: "🧬 셀리온바이오 글로벌 특허 분쟁 패소 쇼크 vs 핀테크페이 슈퍼앱 등극!",
                 news: [
-                    "[바이오 충격파] 직전 라운드에서 폭등했던 노바진신약의 최종 심사 과정에서 치명적 간 독성 부작용이 발견되어 판매 승인이 전격 취소되었습니다!",
-                    "[엔데믹 선언] 세계보건기구(WHO)가 감염병 비상사태 종식을 공식 선언했습니다! 억눌렸던 해외여행 예약이 폭발하는 반면, 진단키트와 집콕 게임은 수요가 급감합니다.",
-                    "[AI 재가동] 엔데믹 이후 기업들의 AI 설비 투자가 재개되며 반도체 업종이 다시 반등합니다."
+                    "[바이오 충격] 대형 제약사 셀리온바이오가 핵심 복제약의 미국 특허 소송에서 패소하며 대규모 배상금과 수출 중단 위기에 직면했습니다!",
+                    "[핀테크 혁명] 핀테크페이가 인공지능 자산관리와 해외 결제 서비스를 통합하며 가입자 4,000만 명을 돌파해 시중은행의 고객을 빠르게 흡수하고 있습니다.",
+                    "[신약 반사이익] 대형사 악재 속에 순수 항암 신약을 개발 중인 노바진신약으로 투자 자금이 이동합니다."
                 ],
-                memo: "가장 짜릿한 반전 함정! 5R에 노바진신약에 올인한 학생은 -72.7% 대폭락, 진단키트 버티기 학생도 -71% 폭락! 반대로 블루오션투어(+180%), 대한하늘항공(+80%) 대폭등!"
+                memo: "우량주 기습 쇼크! 셀리온바이오(-60% 대폭락) vs 핀테크페이(+130% 폭등)와 노바진신약(+47.8%) 급등! 우리민족금융(-8.7%) 약세."
             },
             {
                 round: 7,
                 title: "7회차 거래 전 뉴스 속보",
-                headline: "중동 군사 충돌로 국제 유가 130달러 폭등 & 전기차 보조금 2배 확대",
+                headline: "🏦 한국은행 기준금리 '빅스텝' 전격 인상 & 변이 바이러스 방역 강화",
                 news: [
-                    "[유가 쇼크] 중동 산유국 정세 불안으로 국제 유가가 배럴당 130달러를 돌파했습니다. 전통 정유사(오일맥스정유)는 원유 재고 이익으로 급등하지만, 식자재 물류비와 항공 유류비는 급등했습니다.",
-                    "[전기차·친환경] 고유가 충격을 피하기 위해 미국과 유럽이 전기차 구매 보조금과 신재생에너지 세액공제를 2배로 확대했습니다.",
-                    "[AI 고효율] 전력 소모를 줄이는 고효율 AI 반도체 수요가 폭증하며 넥스트AI칩과 루미너스GPU가 동반 급등합니다."
+                    "[금리 인상] 물가 상승 압력에 한국은행이 기준금리를 전격 인상했습니다. 시중은행(우리민족금융)의 예대마진 수익이 급증하는 반면, 고평가된 AI·핀테크 기술주는 타격을 입습니다.",
+                    "[방역 경보] 계절성 변이 바이러스 유행으로 전국 병원과 학교의 신속 진단키트(메디케어킷) 비축 주문이 급증했습니다.",
+                    "[여행 위축] 금리 인상과 방역 강화로 해외여행과 항공 여객 예약이 일시 감소합니다."
                 ],
-                memo: "고유가 복합 효과! 솔라윈드발전(+52.4%), 볼트배터리(+46.6%), 오일맥스정유(+38%), 썬더모터스(+25.5%), 루미너스GPU(+60%) 급등 vs 프레시팜유통(-19.4%), 항공(-16.7%) 하락."
+                memo: "금리 인상 + 방역 테마 부활! 메디케어킷(+163.6% 폭등), 우리민족금융(+38.1%) 급등 vs 딥코어소프트(-50%), 루미너스GPU(-37.4%), 블루오션투어(-56.3%) 급락."
             },
             {
                 round: 8,
                 title: "8회차 거래 전 뉴스 속보",
-                headline: "🤖 정부 '국가대표 AI 소프트웨어'에 딥코어소프트 전격 선정! & 금리 인하",
+                headline: "🎮 픽셀월드게임즈 신작 '아크네시아' 글로벌 1억 다운로드 잭팟 돌파!",
                 news: [
-                    "[국책 잭팟] 만년 적자 기업이던 딥코어소프트가 정부의 초대형 '국가대표 AI 프로젝트' 단독 주관사로 전격 선정되며 시장의 이목이 집중되었습니다!",
-                    "[금리 인하] 물가가 안정되자 한국은행이 기준금리를 전격 인하했습니다. 대출 이자 수익이 줄어드는 시중은행은 약세를 보이지만 핀테크·바이오·소비재는 살아납니다.",
-                    "[유가 진정] 미국 전략비축유 방출로 국제 유가가 진정되며 정유주는 하락하고 여행·식자재 기업은 숨통이 트입니다."
+                    "[게임 대폭등] 픽셀월드게임즈가 출시한 글로벌 오픈월드 신작이 북미·유럽·아시아 앱스토어 매출 1위를 석권하며 분기 사상 최대 실적을 예고했습니다!",
+                    "[여행·핀테크 회복] 방역 경보가 빠르게 완화되며 여행·항공주와 간편결제 이용액이 다시 반등합니다.",
+                    "[내수 보합] 식자재와 은행 업종은 큰 변동 없이 안정적인 흐름을 유지합니다."
                 ],
-                memo: "두 번째 도박주 떡상 함정! 딥코어소프트(+200%, 3배 폭등)로 학생들을 유혹합니다(다음 라운드에 회계부정 함정이 기다리고 있습니다). 핀테크페이(+20.4%) 상승, 우리민족금융(-8.6%) 하락."
+                memo: "두 번째 도파민 함정! 픽셀월드게임즈(+180%, 2.8배 폭등)로 학생들을 유혹합니다(다음 9라운드에 확률형 아이템 규제 및 해킹 폭락 함정이 있습니다). 블루오션투어(+28.6%), 핀테크페이(+13.3%) 상승."
             },
             {
                 round: 9,
                 title: "9회차 거래 전 뉴스 속보",
-                headline: "🚨 [긴급 공시] 딥코어소프트 분식회계(가짜 매출) 적발! & 배터리 안전규제",
+                headline: "🚨 [긴급 공시] 픽셀월드게임즈 확률 조작 적발·해킹 사태 & 방역 종료",
                 news: [
-                    "[회계부정 충격] 직전 라운드에서 3배 폭등했던 딥코어소프트의 과거 매출이 허위(분식회계)로 드러나며 국책사업 박탈 및 상장폐지 실질심사 위기에 빠졌습니다!",
-                    "[배터리·완성차] 저가 충전소 화재 사고 이후 안전 기준이 대폭 강화되며 검증된 대형 배터리·완성차(볼트배터리, 썬더모터스)로 주문이 쏠리고 적자 충전소 기업은 추락합니다.",
-                    "[신재생·K푸드] 친환경 발전소 장기 계약 확대와 라면 수출 호조로 솔라윈드발전과 맛나종합식품이 강세를 이어갑니다."
+                    "[게임 쇼크] 직전 라운드에서 폭등했던 픽셀월드게임즈가 확률형 아이템 조작 논란과 대규모 계정 해킹 사태에 휘말리며 글로벌 환불 사태가 벌어졌습니다!",
+                    "[방역 완전 해제] 변이 바이러스 유행이 공식 종료되며 진단키트(메디케어킷) 수요가 급감한 반면, 보복 해외여행이 폭발하며 여행·항공주가 급등합니다.",
+                    "[반도체·전기차 반등] 글로벌 IT·자동차 기업들의 설비 투자가 재개되며 핵심 부품주들이 동반 상승합니다."
                 ],
-                memo: "8R에 딥코어소프트로 돈 번 뒤 안 팔고 욕심부린 학생들은 -75% 대폭락! 에코차징(-40%) 하락 vs 볼트배터리(+29.4%), 썬더모터스(+16.9%), 솔라윈드(+14.7%) 상승."
+                memo: "8R에 픽셀게임으로 돈 번 뒤 안 팔고 욕심부린 학생들은 -70% 대폭락! 메디케어킷(-57.7%) 하락 vs 블루오션투어(+111.1%), 하늘항공(+43.8%), 넥스트AI칩(+26.1%) 급등!"
             },
             {
                 round: 10,
                 title: "10회차(최종) 거래 전 뉴스 속보",
-                headline: "🏆 대한민국 주력 수출(AI반도체·전기차·K-푸드·K-게임) 사상 최대 실적 결산!",
+                headline: "🏆 AI 반도체·전기차·K-푸드 수출 역대 최고치 달성! 10라운드 최종 결산",
                 news: [
-                    "[최종 결산] 글로벌 AI 서버 증설과 전기차 보급 확대로 넥스트AI칩, 루미너스GPU, 썬더모터스, 볼트배터리가 분기 사상 최대 실적을 발표했습니다.",
-                    "[K-컬처 대박] 맛나종합식품(라면)과 픽셀월드게임즈(K-게임) 역시 역대 최고 해외 매출을 기록하며 10라운드 대장정을 화려하게 마무리합니다.",
-                    "[부실주 정리] 만년 적자 기업(딥코어소프트, 에코차징)은 유상증자 악재로 추가 하락 마감합니다."
+                    "[최종 결산] 글로벌 AI 서버 증설과 전기차 판매 호조로 넥스트AI칩, 루미너스GPU, 썬더모터스, 볼트배터리가 역대 최고 실적을 기록하며 화려하게 마감합니다.",
+                    "[K-푸드·바이오] 맛나종합식품(라면)과 셀리온바이오도 해외 수출 회복세에 힘입어 강세로 거래를 마칩니다.",
+                    "[적자주 정리] 재무 구조가 취약한 적자 기업(딥코어소프트, 에코차징)은 유상증자 악재로 하락 마감합니다."
                 ],
-                memo: "10라운드 최종 결산! 도박주(노바진·딥코어)의 폭등과 폭락을 피해, 실적이 탄탄한 대장주(넥스트AI칩, 루미너스GPU, 썬더모터스, 볼트배터리, 맛나식품)에 분산 투자한 학생이 최종 우승합니다!"
+                memo: "10라운드 최종 결산! 에코차징(4R→5R), 픽셀게임(8R→9R)의 폭등 후 폭락 함정을 피해, 우량 실적주(넥스트AI칩, 루미너스GPU, 썬더모터스, 볼트배터리, 핀테크페이, 맛나식품)에 분산 투자한 학생이 우승합니다!"
             }
         ];
 
         // --- 상태 변수 ---
-        const appId = 'math-stock-game-v3-1';
+        const appId = 'math-stock-game-v3-3';
         let db = null;
         let auth = null;
         let currentUser = null;
@@ -599,9 +598,9 @@
         function getDefaultClassState(cls) {
             return {
                 classNum: String(cls),
-                isStarted: false,
                 priceRound: 1,
                 newsRound: 1,
+                isStarted: false,
                 isFinished: false,
                 timerEndAt: Date.now() + ROUND_DURATION_SEC * 1000,
                 timerPausedRemaining: ROUND_DURATION_SEC * 1000
@@ -664,7 +663,7 @@
 
         function subscribeAllPlayers() {
             if (!db || !currentUser) return;
-            const playersCol = collection(db, 'artifacts', appId, 'public', 'data', 'players_v31');
+            const playersCol = collection(db, 'artifacts', appId, 'public', 'data', 'players_v33');
             onSnapshot(playersCol, (snapshot) => {
                 const updated = {};
                 snapshot.forEach((docSnap) => {
@@ -701,16 +700,16 @@
 
             const gs = getActiveClassState(activeCls);
 
-            if (gs.isFinished) {
-                displayEl.innerText = "종료";
+            if (!gs.isStarted) {
+                displayEl.innerText = "03:00";
                 displayEl.className = "font-mono text-base sm:text-lg font-black text-slate-400 tracking-wider";
                 if (expiredBanner) expiredBanner.classList.add('hidden');
                 return;
             }
 
-            if (!gs.isStarted) {
-                displayEl.innerText = "대기중";
-                displayEl.className = "font-mono text-base sm:text-lg font-black text-amber-300 tracking-wider";
+            if (gs.isFinished) {
+                displayEl.innerText = "종료";
+                displayEl.className = "font-mono text-base sm:text-lg font-black text-slate-400 tracking-wider";
                 if (expiredBanner) expiredBanner.classList.add('hidden');
                 return;
             }
@@ -744,6 +743,7 @@
         window.toggleTimerPause = async function() {
             if (role !== 'teacher' || selectedTeacherClass === 'ALL') return;
             const gs = getActiveClassState(selectedTeacherClass);
+            if (!gs.isStarted) return;
             const nextState = { ...gs };
             if (nextState.timerPausedRemaining !== null && nextState.timerPausedRemaining !== undefined) {
                 nextState.timerEndAt = Date.now() + nextState.timerPausedRemaining;
@@ -764,7 +764,7 @@
             const nextState = {
                 ...gs,
                 timerEndAt: Date.now() + ROUND_DURATION_SEC * 1000,
-                timerPausedRemaining: null
+                timerPausedRemaining: gs.isStarted ? null : ROUND_DURATION_SEC * 1000
             };
             classStates[selectedTeacherClass] = nextState;
             updateTimerUI();
@@ -816,7 +816,7 @@
             subscribeClassState(cls);
 
             if (db && currentUser) {
-                const playerRef = doc(db, 'artifacts', appId, 'public', 'data', 'players_v31', docId);
+                const playerRef = doc(db, 'artifacts', appId, 'public', 'data', 'players_v33', docId);
                 const existingSnap = await getDoc(playerRef);
                 if (!existingSnap.exists()) {
                     await setDoc(playerRef, {
@@ -851,7 +851,7 @@
         window.enterAsTeacher = function() {
             const pw = document.getElementById('input-teacher-pw').value.trim();
             if (pw !== TEACHER_PASSWORD) {
-                showLoginError('btn-teacher-enter', "교사 비밀번호가 올바르지 않습니다! (기본: 7788)");
+                showLoginError('btn-teacher-enter', "교사 비밀번호가 올바르지 않습니다!");
                 return;
             }
 
@@ -891,7 +891,7 @@
             delete allPlayers[docId];
             renderAll();
             if (db && currentUser) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'players_v31', docId));
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'players_v33', docId));
             }
         };
 
@@ -918,7 +918,7 @@
             }, 2200);
         }
 
-        // --- 교사 10라운드 진행 컨트롤 ---
+        // --- 교사 10라운드 진행 컨트롤 (라운드 시작 버튼 포함) ---
         window.advanceGamePhase = async function() {
             if (role !== 'teacher' || selectedTeacherClass === 'ALL') return;
 
@@ -962,7 +962,7 @@
         window.openResetModal = function() {
             if (selectedTeacherClass === 'ALL') return;
             document.getElementById('reset-modal-desc').innerText =
-                `[3학년 ${selectedTeacherClass}반]의 라운드가 1회차로 돌아가며, 해당 반 학생들의 자산과 보유 주식이 초기 자본금(10,000,000원)으로 리셋됩니다. (다른 반 기록은 안전하게 유지됩니다)`;
+                `[3학년 ${selectedTeacherClass}반]의 라운드가 1회차 입장 대기 상태로 돌아가며, 해당 반 학생들의 자산과 보유 주식이 초기 자본금(10,000,000원)으로 리셋됩니다. (다른 반 기록은 안전하게 유지됩니다)`;
             document.getElementById('reset-modal').classList.remove('hidden');
             document.getElementById('reset-modal').classList.add('flex');
         };
@@ -982,7 +982,7 @@
             if (db && currentUser) {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'class_states', selectedTeacherClass), resetState);
 
-                const playersCol = collection(db, 'artifacts', appId, 'public', 'data', 'players_v31');
+                const playersCol = collection(db, 'artifacts', appId, 'public', 'data', 'players_v33');
                 const snap = await getDocs(playersCol);
                 const promises = [];
                 snap.forEach((docSnap) => {
@@ -1087,7 +1087,7 @@
             renderAll();
 
             if (db && currentUser) {
-                const playerRef = doc(db, 'artifacts', appId, 'public', 'data', 'players_v31', myStudentDocId);
+                const playerRef = doc(db, 'artifacts', appId, 'public', 'data', 'players_v33', myStudentDocId);
                 await updateDoc(playerRef, {
                     cash: newCash,
                     holdings: newHoldings,
@@ -1126,7 +1126,7 @@
             if (tier.includes('대장') || tier.includes('대형') || tier.includes('시중은행') || tier.includes('라면') || tier.includes('완성차')) {
                 return 'bg-emerald-100 text-emerald-800';
             }
-            if (tier.includes('적자') || tier.includes('도박') || tier.includes('패키지')) {
+            if (tier.includes('적자') || tier.includes('고위험') || tier.includes('패키지')) {
                 return 'bg-rose-100 text-rose-800';
             }
             return 'bg-amber-100 text-amber-800';
@@ -1198,8 +1198,8 @@
                 headerTitle.innerText = "10회차 모든 거래 종료 · 최종 순위 확정";
             } else if (!gs.isStarted) {
                 roundBadge.innerText = `⏳ ${activeCls}반 입장 대기 중`;
-                roundBadge.className = "bg-amber-500 text-slate-950 text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
-                headerTitle.innerText = "학생 접속 확인 후 선생님이 1회차 거래를 시작합니다";
+                roundBadge.className = "bg-slate-700 text-amber-300 text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
+                headerTitle.innerText = "학생 접속 확인 후 선생님이 라운드를 시작합니다";
             } else if (isTradeOpen) {
                 roundBadge.innerText = `${activeCls}반 · ${gs.priceRound} / ${TOTAL_ROUNDS}회차 거래 중`;
                 roundBadge.className = "bg-indigo-600 text-white text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl";
@@ -1222,8 +1222,8 @@
                     nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-300 text-slate-600 cursor-not-allowed";
                 } else if (!gs.isStarted) {
                     nextBtn.disabled = false;
-                    nextBtn.innerText = `🚀 1회차 라운드 시작하기 ▶`;
-                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md animate-bounce transition-all";
+                    nextBtn.innerText = "🚀 1회차 라운드 시작하기 ▶";
+                    nextBtn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md animate-pulse transition-all";
                 } else if (isTradeOpen) {
                     nextBtn.disabled = false;
                     nextBtn.innerText = `${gs.priceRound + 1}회차 뉴스 즉시 공개 ▶`;
@@ -1251,8 +1251,8 @@
                 newsStepBadge.innerText = "최종 주가 반영 완료";
                 newsStepBadge.className = "text-xs font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-full";
             } else if (!gs.isStarted) {
-                newsStepBadge.innerText = "입장 대기 중 (시작 전)";
-                newsStepBadge.className = "text-xs font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-full";
+                newsStepBadge.innerText = "개장 대기 중";
+                newsStepBadge.className = "text-xs font-bold bg-amber-500 text-slate-950 px-2.5 py-1 rounded-full";
             } else if (isTradeOpen) {
                 newsStepBadge.innerText = "매수/매도 가능";
                 newsStepBadge.className = "text-xs font-bold bg-emerald-500 text-white px-2.5 py-1 rounded-full";
@@ -1319,7 +1319,6 @@
         }
 
         function renderStockMarketGrid(cls, stocks, gs) {
-            // 테마 필터 탭 렌더링
             const tabsEl = document.getElementById('market-theme-tabs');
             const allTabs = [{ id: 'ALL', label: '전체 (18)' }, ...THEMES];
             tabsEl.innerHTML = allTabs.map(t => {
@@ -1405,12 +1404,14 @@
 
             const lockBanner = document.getElementById('trade-lock-banner');
             if (!isTradeOpen) {
+                lockBanner.innerText = !gs.isStarted
+                    ? "⏳ 입장 완료! 선생님이 [1회차 라운드 시작] 버튼을 누르면 매수/매도 버튼이 열립니다."
+                    : "🔒 현재 뉴스 분석 및 주가 발표 대기 중입니다. 선생님이 주가 결과를 공개한 뒤 다음 거래가 열립니다!";
                 lockBanner.classList.remove('hidden');
             } else {
                 lockBanner.classList.add('hidden');
             }
 
-            // 학생 계좌 테마/보유종목 필터 탭
             const pTabsEl = document.getElementById('portfolio-theme-tabs');
             const heldCount = stocks.filter(s => ((player.holdings && player.holdings[s.id]) || 0) > 0).length;
             const pTabs = [
